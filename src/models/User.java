@@ -9,6 +9,7 @@ package models;
  * @author NelsonJrLHerrera
  */
 public class User {
+
     //Attributes
     private static int userId;
     private static String username;
@@ -20,7 +21,7 @@ public class User {
     private static boolean isActive;
 
     //Constructor
-    public User(int userId, String username, String password, String role, String firstname, String lastname, String email, boolean isActive){   
+    public User(int userId, String username, String password, String role, String firstname, String lastname, String email, boolean isActive) {
         this.userId = userId;
         this.username = username;
         this.password = password;
@@ -79,7 +80,7 @@ public class User {
     public void setLastname(String lastname) {
         User.lastname = lastname;
     }
-    
+
     public String getEmail() {
         return email;
     }
