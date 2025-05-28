@@ -18,22 +18,28 @@ import models.Teacher;
 public class TeacherDAOImpl implements TeacherDAO {
 
     @Override
-    public void createTeacher(Teacher teacher) throws SQLException {
-        String sql = "INSERT INTO teachers (teacher_id, user_id, specialization, advisory_class) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, teacher.getTeacherId());
-            stmt.setInt(2, teacher.getUserId());
+    public boolean createTeacher(Teacher teacher){
+        String sql = "INSERT INTO teachers (specialization, advisory_class) VALUES (?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setString(3, teacher.getSpecialization());
             stmt.setString(4, teacher.getAdvisoryClass());
             stmt.executeUpdate();
+            
+            return true;
+        }catch(SQLException e){
+            e.printStackTrace();
         }
+        return false;
     }
 
     @Override
-    public List<Teacher> getAllTeachers() throws SQLException {
+    public List<Teacher> getAllTeachers(){
         String sql = "SELECT * FROM teachers";
         List<Teacher> teachers = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Teacher teacher = new Teacher(
                         rs.getInt("teacher_id"),
@@ -43,16 +49,20 @@ public class TeacherDAOImpl implements TeacherDAO {
                 );
                 teachers.add(teacher);
             }
+            return teachers;
+        }catch(SQLException e){
+            e.printStackTrace();
         }
-        return teachers;
+        return null;
     }
 
     @Override
-    public Teacher getTeacherById(String teacherId) throws SQLException {
+    public Teacher getTeacherById(String teacherId){
         String sql = "SELECT * FROM teachers WHERE teacher_id = ?";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setInt(1, Integer.parseInt(teacherId));
-            try (ResultSet rs = stmt.executeQuery()) {
+            ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
                     return new Teacher(
                             rs.getInt("teacher_id"),
@@ -61,20 +71,21 @@ public class TeacherDAOImpl implements TeacherDAO {
                             rs.getString("advisory_class")
                     );
                 }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
-        }
-        return null;
+            return null;
     }
 
     @Override
-    public List<Teacher> searchTeachers(String keyword) throws SQLException {
+    public List<Teacher> searchTeachers(String str){
         String sql = "SELECT * FROM teachers WHERE specialization LIKE ? OR advisory_class LIKE ?";
         List<Teacher> teachers = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            String likeKeyword = "%" + keyword + "%";
-            stmt.setString(1, likeKeyword);
-            stmt.setString(2, likeKeyword);
-            try (ResultSet rs = stmt.executeQuery()) {
+            String search = "%" + str + "%";
+            stmt.setString(1, search);
+            stmt.setString(2, search);
+            ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     Teacher teacher = new Teacher(
                             rs.getInt("teacher_id"),
@@ -84,29 +95,43 @@ public class TeacherDAOImpl implements TeacherDAO {
                     );
                     teachers.add(teacher);
                 }
+                return teachers;
+            }catch(SQLException e){
+                e.printStackTrace();
             }
-        }
-        return teachers;
+            return null;
     }
 
     @Override
-    public void updateTeacher(Teacher teacher) throws SQLException {
+    public boolean updateTeacher(Teacher teacher){
         String sql = "UPDATE teachers SET user_id = ?, specialization = ?, advisory_class = ? WHERE teacher_id = ?";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setInt(1, teacher.getUserId());
             stmt.setString(2, teacher.getSpecialization());
             stmt.setString(3, teacher.getAdvisoryClass());
             stmt.setInt(4, teacher.getTeacherId());
             stmt.executeUpdate();
+            
+            return true;
+        }catch(SQLException e){
+            e.printStackTrace();
         }
+        return false;
     }
 
     @Override
-    public void deleteTeacher(String teacherId) throws SQLException {
+    public boolean deleteTeacher(int teacherId){
         String sql = "DELETE FROM teachers WHERE teacher_id = ?";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, Integer.parseInt(teacherId));
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
+            stmt.setInt(1, teacherId);
             stmt.executeUpdate();
+            
+            return true;
+        }catch(SQLException e){
+            e.printStackTrace();
         }
+        return false;
     }
 }

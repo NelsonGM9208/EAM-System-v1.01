@@ -14,13 +14,13 @@ import java.sql.SQLException;
  */
 public interface StudentDAO {
 
-    public void create(Student student) throws SQLException;
+    public boolean create(Student student);
 
-    public Student read_one(int student_id) throws SQLException;
+    public Student read_one(int student_id);
 
-    public List<Student> read_all() throws SQLException;
+    public List<Student> read_all();
 
-    public void update(int student_id, Student student) throws SQLException;
-
-    public List<Student> readStudentsByUser(int user_id) throws SQLException;
+    public boolean update(Student student);
+    
+    public boolean delete(int student_id);
 }
