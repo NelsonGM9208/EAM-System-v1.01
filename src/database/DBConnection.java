@@ -14,7 +14,7 @@ import java.sql.SQLException;
  */
 public class DBConnection {
       // Database URL, Username, and Password
-    private static final String URL = "jdbc:mysql://localhost:3306/eam-system";      
+    private static final String URL = "jdbc:mysql://localhost/eam-system";      
     private static final String USER = "root";      
     private static final String PASSWORD = "root";  
 
