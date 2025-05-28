@@ -14,7 +14,7 @@ import java.sql.SQLException;
  */
 public class DBConnection {
       // Database URL, Username, and Password
-    private static final String URL = "jdbc:mysql://localhost:3306/eam-system";      
+    private static final String URL = "jdbc:mysql://localhost/eam-system";      
     private static final String USER = "root";      
     private static final String PASSWORD = "root";  
 
@@ -28,7 +28,7 @@ public class DBConnection {
         }
     }
     
-    public static void main(String args[]){
+    /*public static void main(String args[]){
         Connection conn = DBConnection.getConnection();
         
         if(conn == null){
@@ -37,5 +37,5 @@ public class DBConnection {
             System.out.println("Connection was successful!");
         }
     
-    }
+    }*/
 }

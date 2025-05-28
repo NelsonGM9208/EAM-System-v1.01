@@ -5,7 +5,6 @@
 package interfaces;
 
 import models.User;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -14,15 +13,15 @@ import java.util.List;
  */
 public interface UserDAO {
 
-    public void addUser(User user) throws SQLException;
+    public boolean addUser(User user);
+    
+    public User getUserById(int userId);
 
-    public User getUserById(int userId) throws SQLException;
+    public List<User> searchUser(String str);
 
-    public List<User> searchUser(String str) throws SQLException;
+    public List<User> getAllUsers();
 
-    public List<User> getAllUsers() throws SQLException;
+    public boolean updateUser(User user);
 
-    public boolean updateUser(User user) throws SQLException;
-
-    public boolean deleteUser(int userId) throws SQLException;
+    public boolean deleteUser(int userId);
 }

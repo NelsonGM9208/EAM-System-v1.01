@@ -6,7 +6,6 @@ package interfaces;
 
 import java.util.List;
 import models.Teacher;
-import java.sql.SQLException;
 
 /**
  *
@@ -14,15 +13,15 @@ import java.sql.SQLException;
  */
 public interface TeacherDAO {
 
-    public void createTeacher(Teacher teacher) throws SQLException;
+    public boolean createTeacher(Teacher teacher);
 
-    public List<Teacher> getAllTeachers() throws SQLException;
+    public List<Teacher> getAllTeachers();
 
-    public Teacher getTeacherById(String teacherId) throws SQLException;
+    public Teacher getTeacherById(String teacherId);
 
-    public List<Teacher> searchTeachers(String keyword) throws SQLException;
+    public List<Teacher> searchTeachers(String keyword);
 
-    public void updateTeacher(Teacher teacher) throws SQLException;
+    public boolean updateTeacher(Teacher teacher);
 
-    public void deleteTeacher(String teacherId) throws SQLException;
+    public boolean deleteTeacher(int teacherId);
 }
