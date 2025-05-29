@@ -537,7 +537,7 @@ public class AdminGUI extends javax.swing.JFrame {
         jRadioButton11.setText("No photo");
 
         jLabel39.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
-        jLabel39.setText("Advicer ID:");
+        jLabel39.setText("Adviser ID:");
 
         jLabel40.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
         jLabel40.setText("Photo:");
