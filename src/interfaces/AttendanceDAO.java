@@ -13,10 +13,16 @@ import java.sql.SQLException;
  * @author NelsonJrLHerrera
  */
 public interface AttendanceDAO {
-    public void createAttendance(Attendance attendance) throws SQLException;
-    public List<Attendance> getAllAttendance() throws SQLException;
-    public Attendance getAttendanceById(int recordId) throws SQLException;  
-    public List<Attendance> searchAttendance(String keyword) throws SQLException;   
-    public void updateAttendance(Attendance attendance) throws SQLException;   
-    public void deleteAttendance(int recordId) throws SQLException;
+    
+    public boolean createAttendance(Attendance attendance);
+    
+    public List<Attendance> getAllAttendance();
+    
+    public Attendance getAttendanceById(int recordId);  
+    
+    public List<Attendance> searchAttendance(String keyword); 
+    
+    public boolean updateAttendance(Attendance attendance);  
+    
+    public boolean deleteAttendance(int recordId);
 }

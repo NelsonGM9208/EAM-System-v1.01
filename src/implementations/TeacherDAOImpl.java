@@ -28,9 +28,8 @@ public class TeacherDAOImpl implements TeacherDAO {
             
             return true;
         }catch(SQLException e){
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -51,30 +50,30 @@ public class TeacherDAOImpl implements TeacherDAO {
             }
             return teachers;
         }catch(SQLException e){
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
     public Teacher getTeacherById(String teacherId){
+        Teacher teacher = null;
         String sql = "SELECT * FROM teachers WHERE teacher_id = ?";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setInt(1, Integer.parseInt(teacherId));
             ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    return new Teacher(
+                    teacher = new Teacher(
                             rs.getInt("teacher_id"),
                             rs.getInt("user_id"),
                             rs.getString("specialization"),
                             rs.getString("advisory_class")
                     );
                 }
+                return teacher;
             }catch(SQLException e){
-                e.printStackTrace();
+                return null;
             }
-            return null;
     }
 
     @Override
@@ -97,9 +96,8 @@ public class TeacherDAOImpl implements TeacherDAO {
                 }
                 return teachers;
             }catch(SQLException e){
-                e.printStackTrace();
+                return null;
             }
-            return null;
     }
 
     @Override
@@ -115,9 +113,8 @@ public class TeacherDAOImpl implements TeacherDAO {
             
             return true;
         }catch(SQLException e){
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -130,8 +127,7 @@ public class TeacherDAOImpl implements TeacherDAO {
             
             return true;
         }catch(SQLException e){
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 }

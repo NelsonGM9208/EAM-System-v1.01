@@ -19,7 +19,8 @@ import java.sql.*;
  */
 public class AttendanceDAOImpl implements AttendanceDAO {
 
-    public void createAttendance(Attendance attendance) throws SQLException {
+    @Override
+    public boolean createAttendance(Attendance attendance) {
         String sql = "INSERT INTO attendance (record_id, event_id, student_id, check_in_time, check_out_time, status, synced) VALUES (?, ?, ?, ?, ?, ?, ?)";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String now = LocalDateTime.now().format(formatter);
@@ -29,18 +30,24 @@ public class AttendanceDAOImpl implements AttendanceDAO {
             stmt.setInt(2, attendance.getEventId());
             stmt.setInt(3, attendance.getStudentId());
             stmt.setString(4, now); // check-in time
-            stmt.setString(5, now); // check-out time
+            stmt.setString(5, attendance.getCheck_out_time()); // check-out time
             stmt.setString(6, attendance.getStatus());
-            stmt.setString(7, attendance.getSynced());
+            stmt.setBoolean(7, attendance.getSynced());
             stmt.executeUpdate();
+
+            return true;
+        } catch (SQLException e) {
+            return false;
         }
     }
 
-    public List<Attendance> getAllAttendance() throws SQLException {
+    @Override
+    public List<Attendance> getAllAttendance() {
         String sql = "SELECT * FROM attendance";
         List<Attendance> attendances = new ArrayList<>();
 
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Attendance attendance = new Attendance(
                         rs.getInt("record_id"),
@@ -49,36 +56,42 @@ public class AttendanceDAOImpl implements AttendanceDAO {
                         rs.getString("check_in_time"),
                         rs.getString("check_out_time"),
                         rs.getString("status"),
-                        rs.getString("synced")
+                        rs.getBoolean("synced")
                 );
                 attendances.add(attendance);
             }
+            return attendances;
+        }catch(SQLException e){
+            return null;
         }
-        return attendances;
     }
 
-    public Attendance getAttendanceById(int recordId) throws SQLException {
+    @Override
+    public Attendance getAttendanceById(int recordId){
+        Attendance attendance = null;
         String sql = "SELECT * FROM attendance WHERE record_id = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, recordId);
-            try (ResultSet rs = stmt.executeQuery()) {
+            ResultSet rs = stmt.executeQuery();
                 if (rs.next()) {
-                    return new Attendance(
+                    attendance = new Attendance(
                             rs.getInt("record_id"),
                             rs.getInt("event_id"),
                             rs.getInt("student_id"),
                             rs.getString("check_in_time"),
                             rs.getString("check_out_time"),
                             rs.getString("status"),
-                            rs.getString("synced")
+                            rs.getBoolean("synced")
                     );
                 }
-            }
+                return attendance;
+        }catch(SQLException e){
+            return null;
         }
-        return null;
     }
 
-    public List<Attendance> searchAttendance(String keyword) throws SQLException {
+    @Override
+    public List<Attendance> searchAttendance(String keyword){
         String sql = "SELECT * FROM attendance WHERE status LIKE ? OR synced LIKE ?";
         List<Attendance> attendances = new ArrayList<>();
 
@@ -86,7 +99,8 @@ public class AttendanceDAOImpl implements AttendanceDAO {
             String likeKeyword = "%" + keyword + "%";
             stmt.setString(1, likeKeyword);
             stmt.setString(2, likeKeyword);
-            try (ResultSet rs = stmt.executeQuery()) {
+            ResultSet rs = stmt.executeQuery();
+
                 while (rs.next()) {
                     Attendance attendance = new Attendance(
                             rs.getInt("record_id"),
@@ -95,16 +109,18 @@ public class AttendanceDAOImpl implements AttendanceDAO {
                             rs.getString("check_in_time"),
                             rs.getString("check_out_time"),
                             rs.getString("status"),
-                            rs.getString("synced")
+                            rs.getBoolean("synced")
                     );
                     attendances.add(attendance);
                 }
-            }
+            return attendances;
+        }catch(SQLException e){
+            return null;
         }
-        return attendances;
     }
 
-    public void updateAttendance(Attendance attendance) throws SQLException {
+    @Override
+    public boolean updateAttendance(Attendance attendance){
         String sql = "UPDATE attendance SET event_id = ?, student_id = ?, check_in_time = ?, check_out_time = ?, status = ?, synced = ? WHERE record_id = ?";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String now = LocalDateTime.now().format(formatter);
@@ -113,19 +129,28 @@ public class AttendanceDAOImpl implements AttendanceDAO {
             stmt.setInt(1, attendance.getEventId());
             stmt.setInt(2, attendance.getStudentId());
             stmt.setString(3, now); // update check-in time
-            stmt.setString(4, now); // update check-out time
+            stmt.setString(4, attendance.getCheck_out_time()); // update check-out time
             stmt.setString(5, attendance.getStatus());
-            stmt.setString(6, attendance.getSynced());
+            stmt.setBoolean(6, attendance.getSynced());
             stmt.setInt(7, attendance.getRecordId());
             stmt.executeUpdate();
+            
+            return true;
+        }catch(SQLException e){
+            return false;
         }
     }
 
-    public void deleteAttendance(int recordId) throws SQLException {
+    @Override
+    public boolean deleteAttendance(int recordId){
         String sql = "DELETE FROM attendance WHERE record_id = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, recordId);
             stmt.executeUpdate();
+            
+            return true;
+        }catch(SQLException e){
+            return false;
         }
     }
 }

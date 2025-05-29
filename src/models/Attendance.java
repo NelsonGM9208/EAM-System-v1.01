@@ -16,9 +16,9 @@ public class Attendance {
     private String check_in_time;
     private String check_out_time;
     private String status;
-    private String synced;
+    private boolean synced;
 
-    public Attendance(int recordId, int eventId, int studentId, String check_in_time, String check_out_time, String status, String synced) {
+    public Attendance(int recordId, int eventId, int studentId, String check_in_time, String check_out_time, String status, boolean synced) {
         this.recordId = recordId;
         this.eventId = eventId;
         this.studentId = studentId;
@@ -52,7 +52,7 @@ public class Attendance {
         return status;
     }
 
-    public String getSynced() {
+    public boolean getSynced() {
         return synced;
     }
 
@@ -80,7 +80,7 @@ public class Attendance {
         this.status = status;
     }
 
-    public void setSynced(String synced) {
+    public void setSynced(Boolean synced) {
         this.synced = synced;
     }
 

@@ -15,17 +15,17 @@ public class Event {
     private static String eventName;
     private static String startTime;
     private static String endTime;
-    private static String veneu;
+    private static String venue;
     private static String description;
     private static int geofenceId;
 
     //Constructor
-    public Event(int eventId, String eventName, String startTime, String endTime, String veneu, String description, int geofenceId) {
+    public Event(int eventId, String eventName, String startTime, String endTime, String venue, String description, int geofenceId) {
         this.eventId = eventId;
         this.eventName = eventName;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.veneu = veneu;
+        this.venue = venue;
         this.description = description;
         this.geofenceId = geofenceId;
     }
@@ -47,8 +47,8 @@ public class Event {
         return endTime;
     }
 
-    public String getVeneu() {
-        return veneu;
+    public String getVenue() {
+        return venue;
     }
 
     public String getDescription() {
@@ -76,8 +76,8 @@ public class Event {
         this.endTime = endTime;
     }
 
-    public void setVeneu(String veneu) {
-        this.veneu = veneu;
+    public void setVenue(String venue) {
+        this.venue = venue;
     }
 
     public void setDescription(String description) {
