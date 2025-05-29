@@ -28,7 +28,7 @@ public class DBConnection {
         }
     }
     
-    /*public static void main(String args[]){
+    public static void main(String args[]){
         Connection conn = DBConnection.getConnection();
         
         if(conn == null){
@@ -37,5 +37,5 @@ public class DBConnection {
             System.out.println("Connection was successful!");
         }
     
-    }*/
+    }
 }

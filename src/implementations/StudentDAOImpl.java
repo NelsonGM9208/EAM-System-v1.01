@@ -35,9 +35,8 @@ public class StudentDAOImpl implements StudentDAO {
             
             return true;
         }catch(SQLException e){
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -61,9 +60,8 @@ public class StudentDAOImpl implements StudentDAO {
             }
             return student;
         }catch(SQLException e){
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -87,9 +85,8 @@ public class StudentDAOImpl implements StudentDAO {
             }
             return students;
         }catch(SQLException e){
-            e.printStackTrace();
+            return null;
         }
-        return null;
         
     }
 
@@ -108,11 +105,11 @@ public class StudentDAOImpl implements StudentDAO {
             
             return true;
         }catch(SQLException e){
-        e.printStackTrace();
+            return false;
         }
-    return false;
     }
     
+    @Override
     public boolean delete(int student_id){
         String sql = "DELETE FROM students WHERE student_id = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -122,8 +119,7 @@ public class StudentDAOImpl implements StudentDAO {
             
             return true;
         }catch(SQLException e){
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
  }

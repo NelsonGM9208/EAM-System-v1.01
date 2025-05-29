@@ -18,7 +18,7 @@ import models.User;
 public class UserDAOImpl implements UserDAO {
 
     @Override
-    public boolean addUser(User user){
+    public boolean addUser(User user) {
         String sql = "INSERT INTO users (username, password, role, firstname, lastname, email, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
@@ -32,10 +32,9 @@ public class UserDAOImpl implements UserDAO {
 
             return true;
 
-        }catch(SQLException e){
-            e.printStackTrace();
+        } catch (SQLException e) {
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -47,12 +46,11 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"), rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), rs.getBoolean("isActive"));
-                return user;
             }
+            return user;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -71,30 +69,27 @@ public class UserDAOImpl implements UserDAO {
             while (rs.next()) {
                 User user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"), rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), rs.getBoolean("isActive"));
                 users.add(user);
-                return users;
             }
+            return users;
         } catch (SQLException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
     public List<User> getAllUsers() {
         String sql = "SELECT * FROM users";
-        User user = null;
         List<User> users = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"), rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), rs.getBoolean("isActive"));
+                User user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"), rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), rs.getBoolean("isActive"));
                 users.add(user);
-                return users;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return users;
+        }catch (SQLException e) {
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -113,9 +108,8 @@ public class UserDAOImpl implements UserDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -127,8 +121,7 @@ public class UserDAOImpl implements UserDAO {
 
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 }
