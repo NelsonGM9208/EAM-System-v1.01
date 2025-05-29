@@ -19,18 +19,16 @@ public class StudentDAOImpl implements StudentDAO {
 
     @Override
     public boolean create(Student student){
-        String query = "INSERT INTO students(student_id, user_id, lrn, gradeLevel, section, adviser_id, photoPath) "
+        String query = "INSERT INTO students(lrn, grade_level, section, class_id, photo_path) "
                 + "VALUES(?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, student.getStudent_id());
-            pstmt.setInt(2, student.getUser_id());
-            pstmt.setLong(3, student.getLrn());
-            pstmt.setInt(4, student.getGradeLevel());
-            pstmt.setString(5, student.getSection());
-            pstmt.setInt(6, student.getAdviser_id());
-            pstmt.setString(7, student.getPhotoPath());
+            pstmt.setLong(1, student.getLrn());
+            pstmt.setInt(2, student.getGradeLevel());
+            pstmt.setString(3, student.getSection());
+            pstmt.setInt(4, student.getClass_id());
+            pstmt.setString(5, student.getPhotoPath());
             pstmt.executeUpdate();
             
             return true;
@@ -52,10 +50,10 @@ public class StudentDAOImpl implements StudentDAO {
                         rs.getInt("student_id"),
                         rs.getInt("user_id"),
                         rs.getLong("lrn"),
-                        rs.getInt("gradeLevel"),
+                        rs.getInt("grade_level"),
                         rs.getString("section"),
-                        rs.getInt("adviser_id"),
-                        rs.getString("photoPath"),
+                        rs.getInt("class_id"),
+                        rs.getString("photo_ath"),
                         rs.getString("created_at"),
                         rs.getString("updated_at")
                 );
@@ -69,23 +67,25 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public List<Student> read_all(){
         List<Student> students = new ArrayList<>();
+        Student student;
         String query = "SELECT * FROM students WHERE status LIKE ? ORDER BY student_id ASC";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, "Completed");
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                students.add(new Student(
+                 student = new Student(
                         rs.getInt("student_id"),
                         rs.getInt("user_id"),
                         rs.getLong("lrn"),
-                        rs.getInt("gradeLevel"),
+                        rs.getInt("grade_level"),
                         rs.getString("section"),
                         rs.getInt("adviser_id"),
-                        rs.getString("photoPath"),
+                        rs.getString("photo_path"),
                         rs.getString("created_at"),
                         rs.getString("updated_at")
-                ));
+                );
+                 students.add(student);
             }
             return students;
         }catch(SQLException e){
@@ -96,13 +96,13 @@ public class StudentDAOImpl implements StudentDAO {
 
     @Override
     public boolean update(Student student){
-        String query = "UPDATE students SET lrn = ?, gradeLevel = ?, section = ?, adviser_id = ?, photoPath = ? WHERE student_id = ?";
+        String query = "UPDATE students SET lrn = ?, grade_level = ?, section = ?, class_id = ?, photo_path = ? WHERE student_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setLong(1, student.getLrn());
             pstmt.setInt(2, student.getGradeLevel());
             pstmt.setString(3, student.getSection());
-            pstmt.setInt(4, student.getAdviser_id());
+            pstmt.setInt(4, student.getClass_id());
             pstmt.setString(5, student.getPhotoPath());
             pstmt.setInt(6, student.getStudent_id());
             pstmt.executeUpdate();

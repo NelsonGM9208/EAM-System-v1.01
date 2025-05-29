@@ -16,6 +16,8 @@ public interface UserDAO {
     public boolean addUser(User user);
     
     public User getUserById(int userId);
+    
+    public User getUserByUsername(String username);
 
     public List<User> searchUser(String str);
 

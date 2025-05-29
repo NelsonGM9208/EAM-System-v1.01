@@ -2,31 +2,14 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-<<<<<<< HEAD
         <group>
-            <file>file:/C:/Users/NelsonJrLHerrera/Documents/NetBeansProjects/EAM%20System/src/models/Student.java</file>
-            <file>file:/C:/Users/NelsonJrLHerrera/Documents/NetBeansProjects/EAM%20System/src/models/Teacher.java</file>
-            <file>file:/C:/Users/NelsonJrLHerrera/Documents/NetBeansProjects/EAM%20System/src/mainGUIs/AdminGUI.java</file>
+            <file>file:/C:/Users/NelsonJrLHerrera/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/TeacherGUI.java</file>
+            <file>file:/C:/Users/NelsonJrLHerrera/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/Teacher_Info.java</file>
+            <file>file:/C:/Users/NelsonJrLHerrera/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/StudentGUI.java</file>
+            <file>file:/C:/Users/NelsonJrLHerrera/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/AdminGUI.java</file>
+            <file>file:/C:/Users/NelsonJrLHerrera/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/LoginGUI.java</file>
+            <file>file:/C:/Users/NelsonJrLHerrera/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/StudentInfo.java</file>
+            <file>file:/C:/Users/NelsonJrLHerrera/Documents/GitHub/EAM-System-v1.01/src/models/Student.java</file>
         </group>
-=======
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        <group>
-            <file>file:/C:/Users/HansBVitorillo/Documents/GitHub/EAM-System-v1.01/src/database/DBConnection.java</file>
-            <file>file:/C:/Users/HansBVitorillo/Documents/GitHub/EAM-System-v1.01/src/models/User.java</file>
-            <file>file:/C:/Users/HansBVitorillo/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/StudentGUI.java</file>
-            <file>file:/C:/Users/HansBVitorillo/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/LoginGUI.java</file>
-            <file>file:/C:/Users/HansBVitorillo/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/AdminGUI.java</file>
-            <file>file:/C:/Users/HansBVitorillo/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/TeacherGUI.java</file>
-            <file>file:/C:/Users/HansBVitorillo/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/Classes_Dialog.java</file>
-            <file>file:/C:/Users/HansBVitorillo/Documents/GitHub/EAM-System-v1.01/src/mainGUIs/Teacher_Info.java</file>
-        </group>
-=======
-        <group/>
->>>>>>> Stashed changes
-=======
-        <group/>
->>>>>>> Stashed changes
->>>>>>> 8ca512fa25ff0f6c38b8d8a4d8ba46a0d4ef20a8
     </open-files>
 </project-private>

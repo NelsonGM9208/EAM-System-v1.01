@@ -46,20 +46,38 @@ public class UserDAOImpl implements UserDAO {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), 
-                        rs.getString("isActive"), rs.getString("created_at"), rs.getString("updated_at"));
+                user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), 
+                        rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
             }
             return user;
         } catch (SQLException ex) {
             return null;
         }
     }
-
+    
+    public User getUserByUsername(String username){
+        User user = null;
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), 
+                        rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
+            }
+            return user;
+        } catch (SQLException ex) {
+            return null;
+        }
+    }
+    
     @Override
     public List<User> searchUser(String str) {
-        String sql = "SELECT * FROM users WHERE username LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR email LIKE ?";
+        String sql = "SELECT * FROM users WHERE username LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR email LIKE ?";
         List<User> users = new ArrayList<>();
+        User user;
 
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             String pattern = "%" + str + "%";
@@ -70,10 +88,9 @@ public class UserDAOImpl implements UserDAO {
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                User user = new User(rs.getInt("userId"), rs.getString("username"), 
-                        rs.getString("password"), rs.getString("role"), rs.getString("firstname"), 
-                        rs.getString("lastname"), rs.getString("email"), rs.getString("isActive"),
-                        rs.getString("created_at"), rs.getString("updated_at"));
+                user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), 
+                        rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }
             return users;
@@ -86,13 +103,13 @@ public class UserDAOImpl implements UserDAO {
     public List<User> getAllUsers() {
         String sql = "SELECT * FROM users";
         List<User> users = new ArrayList<>();
+        User user;
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                User user = new User(rs.getInt("userId"), rs.getString("username"), 
-                        rs.getString("password"), rs.getString("role"), rs.getString("firstname"),
-                        rs.getString("lastname"), rs.getString("email"), rs.getString("isActive"),
-                        rs.getString("created_at"), rs.getString("updated_at"));
+                user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), 
+                        rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }
             return users;
@@ -103,7 +120,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean updateUser(User user) {
-        String sql = "UPDATE users SET username = ?, password = ?, role = ?, firstname = ?, lastname = ?, email = ?, is_active = ? WHERE id = ?";
+        String sql = "UPDATE users SET username = ?, password = ?, role = ?, first_name = ?, last_name = ?, email = ?, is_active = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword());

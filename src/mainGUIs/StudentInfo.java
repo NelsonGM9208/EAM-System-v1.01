@@ -4,14 +4,20 @@
  */
 package mainGUIs;
 
+import implementations.StudentDAOImpl;
+import implementations.UserDAOImpl;
 import javax.swing.JOptionPane;
+import models.Student;
 
 /**
  *
  * @author NelsonJrLHerrera
  */
 public class StudentInfo extends java.awt.Dialog {
-
+    UserDAOImpl userDAOImpl = new UserDAOImpl();
+    StudentDAOImpl studentDAOImpl = new StudentDAOImpl();
+    AdminGUI adminGUI = new AdminGUI();
+    Student student = null;
     /**
      * Creates new form StudentInfo
      */
@@ -111,7 +117,11 @@ public class StudentInfo extends java.awt.Dialog {
         String grade = gradeCB.getSelectedItem().toString();
         String section = sectionCB.getSelectedItem().toString();
         
-        if(lrnTF.getText().isEmpty() && lrn.length() < 12){
+        if(!(lrnTF.getText().isEmpty() && lrn.length() < 12)){
+            userDAOImpl.addUser(adminGUI.user);
+            student = 
+            studentDAOImpl.create(student);
+        }else{
             JOptionPane.showMessageDialog(this, "Input a valid LRN", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_addBTNActionPerformed

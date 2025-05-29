@@ -15,7 +15,7 @@ public class Student {
     private static long lrn;
     private static int gradeLevel;
     private static String section;
-    private static int adviser_id;
+    private static int class_id;
     private static String photoPath;
     private static String created_at;
     private static String updated_at;
@@ -27,7 +27,7 @@ public class Student {
         this.lrn = lrn;
         this.gradeLevel = gradeLevel;
         this.section = section;
-        this.adviser_id = adviser_id;
+        this.class_id = adviser_id;
         this.photoPath = photoPath;
         this.created_at = created_at;
         this.updated_at = updated_at;
@@ -71,8 +71,8 @@ public class Student {
         return section;
     }
 
-    public int getAdviser_id() {
-        return adviser_id;
+    public int getClass_id() {
+        return class_id;
     }
 
     public String getPhotoPath() {
@@ -81,30 +81,30 @@ public class Student {
 
     //Setters
     public void setStudent_id(int student_id) {
-        Student.student_id = student_id;
+        this.student_id = student_id;
     }
 
     public void setUser_id(int user_id) {
-        Student.user_id = user_id;
+        this.user_id = user_id;
     }
 
     public void setLrn(long lrn) {
-        Student.lrn = lrn;
+        this.lrn = lrn;
     }
 
     public void setGradeLevel(int gradeLevel) {
-        Student.gradeLevel = gradeLevel;
+        this.gradeLevel = gradeLevel;
     }
 
     public void setSection(String section) {
-        Student.section = section;
+       this.section = section;
     }
 
-    public void setAdviser_id(int adviser_id) {
-        Student.adviser_id = adviser_id;
+    public void setClass_id(int class_id) {
+        this.class_id = class_id;
     }
 
     public void setPhotoPath(String photoPath) {
-        Student.photoPath = photoPath;
+        this.photoPath = photoPath;
     }
 }
