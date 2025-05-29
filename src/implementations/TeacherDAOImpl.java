@@ -18,66 +18,64 @@ import models.Teacher;
 public class TeacherDAOImpl implements TeacherDAO {
 
     @Override
-    public boolean createTeacher(Teacher teacher){
-        String sql = "INSERT INTO teachers (specialization, advisory_class) VALUES (?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
-            stmt.setString(3, teacher.getSpecialization());
-            stmt.setString(4, teacher.getAdvisoryClass());
+    public boolean createTeacher(Teacher teacher) {
+        String sql = "INSERT INTO teachers (advisory_class) VALUES (?)";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, teacher.getAdvisoryClass());
             stmt.executeUpdate();
-            
+
             return true;
-        }catch(SQLException e){
+        } catch (SQLException e) {
             return false;
         }
     }
 
     @Override
-    public List<Teacher> getAllTeachers(){
+    public List<Teacher> getAllTeachers() {
         String sql = "SELECT * FROM teachers";
         List<Teacher> teachers = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Teacher teacher = new Teacher(
                         rs.getInt("teacher_id"),
                         rs.getInt("user_id"),
-                        rs.getString("specialization"),
-                        rs.getString("advisory_class")
+                        rs.getString("advisory_class"),
+                        rs.getString("created_at"),
+                        rs.getString("updated_at")
                 );
                 teachers.add(teacher);
             }
             return teachers;
-        }catch(SQLException e){
+        } catch (SQLException e) {
             return null;
         }
     }
 
     @Override
-    public Teacher getTeacherById(String teacherId){
+    public Teacher getTeacherById(String teacherId) {
         Teacher teacher = null;
         String sql = "SELECT * FROM teachers WHERE teacher_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, Integer.parseInt(teacherId));
             ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    teacher = new Teacher(
-                            rs.getInt("teacher_id"),
-                            rs.getInt("user_id"),
-                            rs.getString("specialization"),
-                            rs.getString("advisory_class")
-                    );
-                }
-                return teacher;
-            }catch(SQLException e){
-                return null;
+            if (rs.next()) {
+                teacher = new Teacher(
+                        rs.getInt("teacher_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("advisory_class"),
+                        rs.getString("created_at"),
+                        rs.getString("updated_at")
+                );
             }
+            return teacher;
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     @Override
-    public List<Teacher> searchTeachers(String str){
+    public List<Teacher> searchTeachers(String str) {
         String sql = "SELECT * FROM teachers WHERE specialization LIKE ? OR advisory_class LIKE ?";
         List<Teacher> teachers = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -85,48 +83,46 @@ public class TeacherDAOImpl implements TeacherDAO {
             stmt.setString(1, search);
             stmt.setString(2, search);
             ResultSet rs = stmt.executeQuery();
-                while (rs.next()) {
-                    Teacher teacher = new Teacher(
-                            rs.getInt("teacher_id"),
-                            rs.getInt("user_id"),
-                            rs.getString("specialization"),
-                            rs.getString("advisory_class")
-                    );
-                    teachers.add(teacher);
-                }
-                return teachers;
-            }catch(SQLException e){
-                return null;
+            while (rs.next()) {
+                Teacher teacher = new Teacher(
+                        rs.getInt("teacher_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("advisory_class"),
+                        rs.getString("created_at"),
+                        rs.getString("updated_at")
+                );
+                teachers.add(teacher);
             }
+            return teachers;
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     @Override
-    public boolean updateTeacher(Teacher teacher){
+    public boolean updateTeacher(Teacher teacher) {
         String sql = "UPDATE teachers SET user_id = ?, specialization = ?, advisory_class = ? WHERE teacher_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, teacher.getUserId());
-            stmt.setString(2, teacher.getSpecialization());
             stmt.setString(3, teacher.getAdvisoryClass());
             stmt.setInt(4, teacher.getTeacherId());
             stmt.executeUpdate();
-            
+
             return true;
-        }catch(SQLException e){
+        } catch (SQLException e) {
             return false;
         }
     }
 
     @Override
-    public boolean deleteTeacher(int teacherId){
+    public boolean deleteTeacher(int teacherId) {
         String sql = "DELETE FROM teachers WHERE teacher_id = ?";
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, teacherId);
             stmt.executeUpdate();
-            
+
             return true;
-        }catch(SQLException e){
+        } catch (SQLException e) {
             return false;
         }
     }

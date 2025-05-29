@@ -55,7 +55,9 @@ public class StudentDAOImpl implements StudentDAO {
                         rs.getInt("gradeLevel"),
                         rs.getString("section"),
                         rs.getInt("adviser_id"),
-                        rs.getString("photoPath")
+                        rs.getString("photoPath"),
+                        rs.getString("created_at"),
+                        rs.getString("updated_at")
                 );
             }
             return student;
@@ -80,7 +82,9 @@ public class StudentDAOImpl implements StudentDAO {
                         rs.getInt("gradeLevel"),
                         rs.getString("section"),
                         rs.getInt("adviser_id"),
-                        rs.getString("photoPath")
+                        rs.getString("photoPath"),
+                        rs.getString("created_at"),
+                        rs.getString("updated_at")
                 ));
             }
             return students;

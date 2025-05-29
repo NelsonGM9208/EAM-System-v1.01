@@ -6,8 +6,6 @@ package auth;
 
 import database.DBConnection;
 import java.sql.*;
-import javax.swing.JOptionPane;
-import mainGUIs.LoginGUI;
 import models.User;
 import util.HashUtil;
 
@@ -17,9 +15,9 @@ import util.HashUtil;
  */
 public class Authentication {
 
-    public static User checkLogin(String username, String password){
+    public User checkLogin(String username, String password){
         String hashedPassword = HashUtil.sha256(password);
-        LoginGUI loginGUI = new LoginGUI();
+        User user = null;
         
         String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -31,13 +29,14 @@ public class Authentication {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                User user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"), rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), rs.getBoolean("isActive"));
-                return user;
+                user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), 
+                        rs.getString("email"), rs.getString("is_active"), "", "");              
             }
+            return user;
         }catch(SQLException e){
             e.printStackTrace();
             return null;
         }
-        return null;
     }
 }

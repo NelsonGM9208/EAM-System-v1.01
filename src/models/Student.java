@@ -17,9 +17,11 @@ public class Student {
     private static String section;
     private static int adviser_id;
     private static String photoPath;
+    private static String created_at;
+    private static String updated_at;
 
     //Constructor
-    public Student(int student_id, int user_id, long lrn, int gradeLevel, String section, int adviser_id, String photoPath) {
+    public Student(int student_id, int user_id, long lrn, int gradeLevel, String section, int adviser_id, String photoPath, String created_at, String updated_at) {
         this.student_id = student_id;
         this.user_id = user_id;
         this.lrn = lrn;
@@ -27,8 +29,27 @@ public class Student {
         this.section = section;
         this.adviser_id = adviser_id;
         this.photoPath = photoPath;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
+    }
+    
+    //Created At and Updated At
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
+    
+    public void setUpdated_at(String updated_at) {    
+        this.updated_at = updated_at;
     }
 
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public String getUpdated_at() {
+        return updated_at;
+    }
+    
     //Getters
     public int getStudent_id() {
         return student_id;

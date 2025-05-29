@@ -13,17 +13,36 @@ public class Teacher {
     //Attributes
     private int teacherId;
     private int userId;
-    private String specialization;
     private String advisoryClass;
+    private static String created_at;
+    private static String updated_at;
 
     //Constructor
-    public Teacher(int teacherId, int userId, String specialization, String advisoryClass) {
+    public Teacher(int teacherId, int userId, String advisoryClass, String created_at, String updated_at) {
         this.teacherId = teacherId;
         this.userId = userId;
-        this.specialization = specialization;
         this.advisoryClass = advisoryClass;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
+    }
+    
+    //Created At and Updated At
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
+    
+    public void setUpdated_at(String updated_at) {    
+        this.updated_at = updated_at;
     }
 
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public String getUpdated_at() {
+        return updated_at;
+    }
+    
     //Getters
     public int getTeacherId() {
         return teacherId;
@@ -31,10 +50,6 @@ public class Teacher {
 
     public int getUserId() {
         return userId;
-    }
-
-    public String getSpecialization() {
-        return specialization;
     }
 
     public String getAdvisoryClass() {
@@ -48,10 +63,6 @@ public class Teacher {
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
     }
 
     public void setAdvisoryClass(String advisoryClass) {

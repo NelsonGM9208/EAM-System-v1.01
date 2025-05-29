@@ -27,8 +27,8 @@ public class StudentGUI extends javax.swing.JFrame {
     private void initComponents() {
 
         jMenuItem3 = new javax.swing.JMenuItem();
-        Dashboard = new javax.swing.JTabbedPane();
         jDesktopPane1 = new javax.swing.JDesktopPane();
+        Dashboard = new javax.swing.JTabbedPane();
         jDesktopPane3 = new javax.swing.JDesktopPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
@@ -45,8 +45,6 @@ public class StudentGUI extends javax.swing.JFrame {
 
         jMenuItem3.setText("jMenuItem3");
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
         javax.swing.GroupLayout jDesktopPane1Layout = new javax.swing.GroupLayout(jDesktopPane1);
         jDesktopPane1.setLayout(jDesktopPane1Layout);
         jDesktopPane1Layout.setHorizontalGroup(
@@ -58,7 +56,7 @@ public class StudentGUI extends javax.swing.JFrame {
             .addGap(0, 423, Short.MAX_VALUE)
         );
 
-        Dashboard.addTab("Dashboard", jDesktopPane1);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {

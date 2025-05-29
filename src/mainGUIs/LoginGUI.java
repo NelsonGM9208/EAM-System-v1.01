@@ -5,9 +5,6 @@
 package mainGUIs;
 
 import auth.Authentication;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import models.User;
@@ -17,7 +14,7 @@ import models.User;
  * @author NelsonJrLHerrera
  */
 public class LoginGUI extends javax.swing.JFrame {
-
+    Authentication authentication = new Authentication();
     /**
      * Creates new form LoginGUI
      */
@@ -189,20 +186,20 @@ public class LoginGUI extends javax.swing.JFrame {
         }
         
         try{
-            User user = Authentication.checkLogin(username, password);
+            User user = authentication.checkLogin(username, password);
             if(user != null){
                 switch(user.getRole()){
-                    case "admin":
+                    case "Admin":
                         AdminGUI adminGUI = new AdminGUI();
                         adminGUI.show(true);
                         this.dispose();
                         break;
-                    case "teacher":
+                    case "Teacher":
                         TeacherGUI teacherGUI = new TeacherGUI();
                         teacherGUI.show(true);
                         this.dispose();
                         break;
-                    case "student":
+                    case "Student":
                         StudentGUI studentGUI = new StudentGUI();
                         studentGUI.show(true);
                         this.dispose();
@@ -212,7 +209,7 @@ public class LoginGUI extends javax.swing.JFrame {
                         break;
                 }
             }else{
-                JOptionPane.showMessageDialog(this, "Invalid Credintials");
+                JOptionPane.showMessageDialog(this, "Invalid Credentials");
             }
         }catch(Exception e){
             e.printStackTrace();

@@ -19,7 +19,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean addUser(User user) {
-        String sql = "INSERT INTO users (username, password, role, firstname, lastname, email, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, role, first_name, last_name, email, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword());
@@ -27,12 +27,13 @@ public class UserDAOImpl implements UserDAO {
             stmt.setString(4, user.getFirstname());
             stmt.setString(5, user.getLastname());
             stmt.setString(6, user.getEmail());
-            stmt.setBoolean(7, user.isIsActive());
+            stmt.setString(7, user.isIsActive());
             stmt.executeUpdate();
 
             return true;
 
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -45,7 +46,9 @@ public class UserDAOImpl implements UserDAO {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"), rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), rs.getBoolean("isActive"));
+                user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"),
+                        rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), 
+                        rs.getString("isActive"), rs.getString("created_at"), rs.getString("updated_at"));
             }
             return user;
         } catch (SQLException ex) {
@@ -67,7 +70,10 @@ public class UserDAOImpl implements UserDAO {
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                User user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"), rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), rs.getBoolean("isActive"));
+                User user = new User(rs.getInt("userId"), rs.getString("username"), 
+                        rs.getString("password"), rs.getString("role"), rs.getString("firstname"), 
+                        rs.getString("lastname"), rs.getString("email"), rs.getString("isActive"),
+                        rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }
             return users;
@@ -83,7 +89,10 @@ public class UserDAOImpl implements UserDAO {
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                User user = new User(rs.getInt("userId"), rs.getString("username"), rs.getString("password"), rs.getString("role"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("email"), rs.getBoolean("isActive"));
+                User user = new User(rs.getInt("userId"), rs.getString("username"), 
+                        rs.getString("password"), rs.getString("role"), rs.getString("firstname"),
+                        rs.getString("lastname"), rs.getString("email"), rs.getString("isActive"),
+                        rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }
             return users;
@@ -102,7 +111,7 @@ public class UserDAOImpl implements UserDAO {
             stmt.setString(4, user.getFirstname());
             stmt.setString(5, user.getLastname());
             stmt.setString(6, user.getEmail());
-            stmt.setBoolean(7, user.isIsActive());
+            stmt.setString(7, user.isIsActive());
             stmt.setInt(8, user.getUserId());
 
             stmt.executeUpdate();

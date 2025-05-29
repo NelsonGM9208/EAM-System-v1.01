@@ -11,17 +11,19 @@ package models;
 public class User {
 
     //Attributes
-    private static int userId;
-    private static String username;
-    private static String password;
-    private static String role;
-    private static String firstname;
-    private static String lastname;
-    private static String email;
-    private static boolean isActive;
+    private int userId;
+    private   String username;
+    private String password;
+    private String role;
+    private String firstname;
+    private String lastname;
+    private String email;
+    private String isActive;
+    private String created_at;
+    private String updated_at;
 
     //Constructor
-    public User(int userId, String username, String password, String role, String firstname, String lastname, String email, boolean isActive) {
+    public User(int userId, String username, String password, String role, String firstname, String lastname, String email, String isActive, String created_at, String updated_at) {
         this.userId = userId;
         this.username = username;
         this.password = password;
@@ -30,15 +32,35 @@ public class User {
         this.lastname = lastname;
         this.email = email;
         this.isActive = isActive;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
+    
 
     //getters and setters (NON-STATIC)
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
+    
+    public void setUpdated_at(String updated_at) {    
+        this.updated_at = updated_at;
+    }
+
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public String getUpdated_at() {
+        return updated_at;
+    }
+    
+    
     public int getUserId() {
         return userId;
     }
 
     public void setUserId(int userId) {
-        User.userId = userId;
+        this.userId = userId;
     }
 
     public String getUsername() {
@@ -46,7 +68,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        User.username = username;
+        this.username = username;
     }
 
     public String getPassword() {
@@ -54,7 +76,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        User.password = password;
+        this.password = password;
     }
 
     public String getRole() {
@@ -62,7 +84,7 @@ public class User {
     }
 
     public void setRole(String role) {
-        User.role = role;
+        this.role = role;
     }
 
     public String getFirstname() {
@@ -70,7 +92,7 @@ public class User {
     }
 
     public void setFirstname(String firstname) {
-        User.firstname = firstname;
+        this.firstname = firstname;
     }
 
     public String getLastname() {
@@ -78,7 +100,7 @@ public class User {
     }
 
     public void setLastname(String lastname) {
-        User.lastname = lastname;
+        this.lastname = lastname;
     }
 
     public String getEmail() {
@@ -86,14 +108,14 @@ public class User {
     }
 
     public void setEmail(String email) {
-        User.email = email;
+        this.email = email;
     }
 
-    public boolean isIsActive() {
+    public String isIsActive() {
         return isActive;
     }
 
-    public void setIsActive(boolean isActive) {
-        User.isActive = isActive;
+    public void setIsActive(String isActive) {
+        this.isActive = isActive;
     }
 }
