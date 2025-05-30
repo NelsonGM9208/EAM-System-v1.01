@@ -22,9 +22,9 @@ public class ClassesDAOImpl implements ClassesDAO{
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(2, classes.getGrade()); // updated
-            pstmt.setString(3, classes.getSection());
-            pstmt.setInt(4, classes.getAdviser_id());
+            pstmt.setInt(1, classes.getGrade()); // updated
+            pstmt.setString(2, classes.getSection());
+            pstmt.setInt(3, classes.getAdviser_id());
             pstmt.executeUpdate();
 
             return true;
@@ -130,7 +130,7 @@ public class ClassesDAOImpl implements ClassesDAO{
     }
     
     public boolean existsWithAdviser(int grade, String section) {
-    String sql = "SELECT COUNT(*) FROM classes WHERE grade = ? AND section = ? AND teacher_id IS NOT NULL";
+    String sql = "SELECT COUNT(*) FROM classes WHERE grade = ? AND section = ? AND adviser_id IS NOT NULL";
     try (Connection conn = DBConnection.getConnection();
          PreparedStatement stmt = conn.prepareStatement(sql)) {
         stmt.setInt(1, grade);

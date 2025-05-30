@@ -19,22 +19,26 @@ public class TeacherDAOImpl implements TeacherDAO {
 
     @Override
     public Integer createTeacher(Teacher teacher) {
-        String sql = "INSERT INTO teachers (advisory_class) VALUES (?)";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, teacher.getAdvisoryClass());
+        String sql = "INSERT INTO teachers (user_id, advisory_class) VALUES (?, ?)";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setInt(1, teacher.getUserId());
+            stmt.setString(2, teacher.getAdvisoryClass());
+
             int affectedRows = stmt.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Creating user failed, no rows affected.");
+                throw new SQLException("Creating teacher failed, no rows affected.");
             }
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1); // Return the newly inserted user_id
+                    return generatedKeys.getInt(1); // Return the generated teacher_id
                 } else {
-                    throw new SQLException("Creating user failed, no ID obtained.");
+                    throw new SQLException("Creating teacher failed, no ID obtained.");
                 }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
