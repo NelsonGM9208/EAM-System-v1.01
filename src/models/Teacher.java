@@ -14,8 +14,8 @@ public class Teacher {
     private int teacherId;
     private int userId;
     private String advisoryClass;
-    private static String created_at;
-    private static String updated_at;
+    private  String created_at;
+    private  String updated_at;
 
     //Constructor
     public Teacher(int teacherId, int userId, String advisoryClass, String created_at, String updated_at) {

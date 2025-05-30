@@ -17,17 +17,15 @@ public class Event {
     private static String endTime;
     private static String venue;
     private static String description;
-    private static int geofenceId;
 
     //Constructor
-    public Event(int eventId, String eventName, String startTime, String endTime, String venue, String description, int geofenceId) {
+    public Event(int eventId, String eventName, String startTime, String endTime, String venue, String description) {
         this.eventId = eventId;
         this.eventName = eventName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.venue = venue;
         this.description = description;
-        this.geofenceId = geofenceId;
     }
 
     //Getters
@@ -55,10 +53,6 @@ public class Event {
         return description;
     }
 
-    public int getGeofenceId() {
-        return geofenceId;
-    }
-
     //Setters
     public static void setEventId(int eventId) {
         Event.eventId = eventId;
@@ -82,9 +76,5 @@ public class Event {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void setGeofenceId(int geofenceId) {
-        this.geofenceId = geofenceId;
     }
 }

@@ -56,7 +56,7 @@ public class Teacher_Info extends javax.swing.JDialog {
         jLabel2.setText("Advisory:");
 
         advisoryCB.setBackground(new java.awt.Color(204, 204, 204));
-        advisoryCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None", "11-ABM", "11-HE1", "11-HE2A", "11-HE2B", "11-HUMMS", "11-ICT", "11-STEM", "12-ABM", " 12-HE1", " 12-HE2A", " 12-HE2B", "12-HUMMS", " 12-ICT", " 12-STEM", " " }));
+        advisoryCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None", "11-ICT", "11-ABM", "11-HE1", "11-HE2A", "11-HE2B", "11-HUMMS", "11-STEM", "12-ABM", "12-HE1", "12-HE2A", "12-HE2B", "12-HUMMS", "12-ICT", "12-STEM" }));
         advisoryCB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 advisoryCBActionPerformed(evt);
@@ -135,7 +135,7 @@ public class Teacher_Info extends javax.swing.JDialog {
 
         if (option == 0) {
             if (userDAOImpl.deleteUser(this.user.getUserId()) == true) {
-                JOptionPane.showMessageDialog(this, "User and Student deleted successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "User and Teacher deleted successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
                 this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "User not deleted. An error occured.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -177,6 +177,18 @@ public class Teacher_Info extends javax.swing.JDialog {
 
                 this.dispose(); // Close dialog after success
             } else {
+                userDAOImpl.deleteUser(this.user.getUserId());
+                JOptionPane.showMessageDialog(this, "User added, but failed to add Teacher. User deleted.", "Error", JOptionPane.ERROR_MESSAGE);
+                this.dispose();
+            }
+        }else{
+            teacher = new Teacher(-1, this.user.getUserId(), advisory, "", "");
+            Integer teacher_id = teacherDAOImpl.createTeacher(teacher);
+            if (teacher_id != null) {
+                JOptionPane.showMessageDialog(this, "User and Teacher added successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
+
+                this.teacher.setTeacherId(teacher_id);
+            }else{
                 userDAOImpl.deleteUser(this.user.getUserId());
                 JOptionPane.showMessageDialog(this, "User added, but failed to add Teacher. User deleted.", "Error", JOptionPane.ERROR_MESSAGE);
                 this.dispose();

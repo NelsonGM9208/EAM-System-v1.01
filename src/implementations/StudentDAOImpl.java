@@ -70,10 +70,9 @@ public class StudentDAOImpl implements StudentDAO {
     public List<Student> read_all(){
         List<Student> students = new ArrayList<>();
         Student student;
-        String query = "SELECT * FROM students WHERE status LIKE ? ORDER BY student_id ASC";
+        String query = "SELECT * FROM students";
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, "Completed");
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                  student = new Student(
@@ -82,7 +81,7 @@ public class StudentDAOImpl implements StudentDAO {
                         rs.getLong("lrn"),
                         rs.getInt("grade_level"),
                         rs.getString("section"),
-                        rs.getInt("adviser_id"),
+                        rs.getInt("class_id"),
                         rs.getString("photo_path"),
                         rs.getString("created_at"),
                         rs.getString("updated_at")

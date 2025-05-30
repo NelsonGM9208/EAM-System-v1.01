@@ -39,14 +39,12 @@ public class StudentInfo extends java.awt.Dialog {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         backBTN = new javax.swing.JButton();
         addBTN = new javax.swing.JButton();
-        gradeCB = new javax.swing.JComboBox<>();
-        sectionCB = new javax.swing.JComboBox<>();
         lrnTF = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
+        classCB = new javax.swing.JComboBox<>();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -57,11 +55,8 @@ public class StudentInfo extends java.awt.Dialog {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Student Information"));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setText("Grade:");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, -1, -1));
-
-        jLabel2.setText("Section:");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 140, -1, -1));
+        jLabel2.setText("Grade & Section:");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, -1, -1));
 
         backBTN.setBackground(new java.awt.Color(204, 204, 204));
         backBTN.setText("Back");
@@ -80,18 +75,19 @@ public class StudentInfo extends java.awt.Dialog {
             }
         });
         jPanel1.add(addBTN, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 200, -1, -1));
-
-        gradeCB.setBackground(new java.awt.Color(204, 204, 204));
-        gradeCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "11", "12" }));
-        jPanel1.add(gradeCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 100, 110, 30));
-
-        sectionCB.setBackground(new java.awt.Color(204, 204, 204));
-        sectionCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ABM", "HE1", "HE2A", "HE2B", "HUMMS", "ICT", "STEM" }));
-        jPanel1.add(sectionCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 140, 110, 30));
-        jPanel1.add(lrnTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 60, 260, 30));
+        jPanel1.add(lrnTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 60, 260, 30));
 
         jLabel3.setText("LRN:");
         jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, -1, -1));
+
+        classCB.setBackground(new java.awt.Color(204, 204, 204));
+        classCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "11-ICT", "11-ABM", "11-HE1", "11-HE2A", "11-HE2B", "11-HUMMS", "11-STEM", "12-ABM", "12-HE1", "12-HE2A", "12-HE2B", "12-HUMMS", "12-ICT", "12-STEM" }));
+        classCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                classCBActionPerformed(evt);
+            }
+        });
+        jPanel1.add(classCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 130, 260, 30));
 
         add(jPanel1, java.awt.BorderLayout.CENTER);
 
@@ -124,11 +120,13 @@ public class StudentInfo extends java.awt.Dialog {
     private void addBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBTNActionPerformed
         // TODO add your handling code here:
         String lrn = lrnTF.getText();
-        String grade = gradeCB.getSelectedItem().toString();
-        String section = sectionCB.getSelectedItem().toString();
+        String grade_section = classCB.getSelectedItem().toString();
+        int grade = Integer.parseInt(grade_section.substring(0, 2));
+        String section = grade_section.substring(3);
+        int classId = classCB.getSelectedIndex() + 20;
 
         if (!lrn.isEmpty() && lrn.length() == 12) {
-            student = new Student(-1, this.user.getUserId(), Long.parseLong(lrn), Integer.parseInt(grade), section, 1, "", "", "");
+            student = new Student(-1, this.user.getUserId(), Long.parseLong(lrn), grade, section, classId, "", "", "");
             
             if (studentDAOImpl.create(student)) {
                 JOptionPane.showMessageDialog(this, "User and Student added successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
@@ -142,6 +140,10 @@ public class StudentInfo extends java.awt.Dialog {
             JOptionPane.showMessageDialog(this, "Input a valid LRN", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_addBTNActionPerformed
+
+    private void classCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classCBActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_classCBActionPerformed
 
     /**
      * @param args the command line arguments
@@ -164,12 +166,10 @@ public class StudentInfo extends java.awt.Dialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addBTN;
     private javax.swing.JButton backBTN;
-    private javax.swing.JComboBox<String> gradeCB;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JComboBox<String> classCB;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField lrnTF;
-    private javax.swing.JComboBox<String> sectionCB;
     // End of variables declaration//GEN-END:variables
 }

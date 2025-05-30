@@ -1,110 +1,110 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package models;
+    /*
+     * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+     * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+     */
+    package models;
 
-/**
- *
- * @author NelsonJrLHerrera
- */
-public class Student {
+    /**
+     *
+     * @author NelsonJrLHerrera
+     */
+    public class Student {
 
-    private static int student_id;
-    private static int user_id;
-    private static long lrn;
-    private static int gradeLevel;
-    private static String section;
-    private static int class_id;
-    private static String photoPath;
-    private static String created_at;
-    private static String updated_at;
+        private int student_id;
+        private int user_id;
+        private long lrn;
+        private int gradeLevel;
+        private String section;
+        private int class_id;
+        private String photoPath;
+        private String created_at;
+        private String updated_at;
 
-    //Constructor
-    public Student(int student_id, int user_id, long lrn, int gradeLevel, String section, int adviser_id, String photoPath, String created_at, String updated_at) {
-        this.student_id = student_id;
-        this.user_id = user_id;
-        this.lrn = lrn;
-        this.gradeLevel = gradeLevel;
-        this.section = section;
-        this.class_id = adviser_id;
-        this.photoPath = photoPath;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
-    }
-    
-    //Created At and Updated At
-    public void setCreated_at(String created_at) {
-        this.created_at = created_at;
-    }
-    
-    public void setUpdated_at(String updated_at) {    
-        this.updated_at = updated_at;
-    }
+        //Constructor
+        public Student(int student_id, int user_id, long lrn, int gradeLevel, String section, int adviser_id, String photoPath, String created_at, String updated_at) {
+            this.student_id = student_id;
+            this.user_id = user_id;
+            this.lrn = lrn;
+            this.gradeLevel = gradeLevel;
+            this.section = section;
+            this.class_id = adviser_id;
+            this.photoPath = photoPath;
+            this.created_at = created_at;
+            this.updated_at = updated_at;
+        }
 
-    public String getCreated_at() {
-        return created_at;
-    }
+        //Created At and Updated At
+        public void setCreated_at(String created_at) {
+            this.created_at = created_at;
+        }
 
-    public String getUpdated_at() {
-        return updated_at;
-    }
-    
-    //Getters
-    public int getStudent_id() {
-        return student_id;
-    }
+        public void setUpdated_at(String updated_at) {    
+            this.updated_at = updated_at;
+        }
 
-    public int getUser_id() {
-        return user_id;
-    }
+        public String getCreated_at() {
+            return created_at;
+        }
 
-    public long getLrn() {
-        return lrn;
-    }
+        public String getUpdated_at() {
+            return updated_at;
+        }
 
-    public int getGradeLevel() {
-        return gradeLevel;
-    }
+        //Getters
+        public int getStudent_id() {
+            return student_id;
+        }
 
-    public String getSection() {
-        return section;
-    }
+        public int getUser_id() {
+            return user_id;
+        }
 
-    public int getClass_id() {
-        return class_id;
-    }
+        public long getLrn() {
+            return lrn;
+        }
 
-    public String getPhotoPath() {
-        return photoPath;
-    }
+        public int getGradeLevel() {
+            return gradeLevel;
+        }
 
-    //Setters
-    public void setStudent_id(int student_id) {
-        this.student_id = student_id;
-    }
+        public String getSection() {
+            return section;
+        }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
-    }
+        public int getClass_id() {
+            return class_id;
+        }
 
-    public void setLrn(long lrn) {
-        this.lrn = lrn;
-    }
+        public String getPhotoPath() {
+            return photoPath;
+        }
 
-    public void setGradeLevel(int gradeLevel) {
-        this.gradeLevel = gradeLevel;
-    }
+        //Setters
+        public void setStudent_id(int student_id) {
+            this.student_id = student_id;
+        }
 
-    public void setSection(String section) {
-       this.section = section;
-    }
+        public void setUser_id(int user_id) {
+            this.user_id = user_id;
+        }
 
-    public void setClass_id(int class_id) {
-        this.class_id = class_id;
-    }
+        public void setLrn(long lrn) {
+            this.lrn = lrn;
+        }
 
-    public void setPhotoPath(String photoPath) {
-        this.photoPath = photoPath;
+        public void setGradeLevel(int gradeLevel) {
+            this.gradeLevel = gradeLevel;
+        }
+
+        public void setSection(String section) {
+           this.section = section;
+        }
+
+        public void setClass_id(int class_id) {
+            this.class_id = class_id;
+        }
+
+        public void setPhotoPath(String photoPath) {
+            this.photoPath = photoPath;
+        }
     }
-}

@@ -26,7 +26,6 @@ public class EventDAOImpl implements EventDAO {
             stmt.setString(3, event.getEndTime());
             stmt.setString(4, event.getVenue());
             stmt.setString(5, event.getDescription());
-            stmt.setInt(6, event.getGeofenceId());
             stmt.executeUpdate();
 
             return true;
@@ -48,8 +47,7 @@ public class EventDAOImpl implements EventDAO {
                         rs.getString("startTime"),
                         rs.getString("endTime"),
                         rs.getString("veneu"),
-                        rs.getString("description"),
-                        rs.getInt("geofenceId")
+                        rs.getString("description")
                 );
                 eventList.add(event);
             }
@@ -74,8 +72,7 @@ public class EventDAOImpl implements EventDAO {
                         rs.getString("startTime"),
                         rs.getString("endTime"),
                         rs.getString("veneu"),
-                        rs.getString("description"),
-                        rs.getInt("geofenceId")
+                        rs.getString("description")
                 );
                 // set other fields as needed
             }    
@@ -101,8 +98,7 @@ public class EventDAOImpl implements EventDAO {
                         rs.getString("startTime"),
                         rs.getString("endTime"),
                         rs.getString("veneu"),
-                        rs.getString("description"),
-                        rs.getInt("geofenceId")
+                        rs.getString("description")
                 );
                 eventList.add(event);
             }
@@ -121,7 +117,6 @@ public class EventDAOImpl implements EventDAO {
             stmt.setString(3, event.getEndTime());
             stmt.setString(4, event.getVenue());
             stmt.setString(5, event.getDescription());
-            stmt.setInt(6, event.getGeofenceId());
             stmt.executeUpdate();
             
             return true;
