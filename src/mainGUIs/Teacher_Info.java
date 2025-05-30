@@ -4,6 +4,7 @@
  */
 package mainGUIs;
 
+import implementations.ClassesDAOImpl;
 import implementations.TeacherDAOImpl;
 import implementations.UserDAOImpl;
 import javax.swing.JOptionPane;
@@ -16,11 +17,14 @@ import models.Classes;
  * @author HansBVitorillo
  */
 public class Teacher_Info extends javax.swing.JDialog {
+
     UserDAOImpl userDAOImpl = new UserDAOImpl();
     TeacherDAOImpl teacherDAOImpl = new TeacherDAOImpl();
+    ClassesDAOImpl classesDAOImpl = new ClassesDAOImpl();
     Teacher teacher;
     Classes classes;
     private User user;
+
     /**
      * Creates new form Teacher_Info
      */
@@ -128,12 +132,12 @@ public class Teacher_Info extends javax.swing.JDialog {
     private void backBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBTNActionPerformed
         // TODO add your handling code here:
         int option = JOptionPane.showConfirmDialog(this, "Are you sure to discard the infos above and remove the User account?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
-        
+
         if (option == 0) {
-            if(userDAOImpl.deleteUser(this.user.getUserId()) == true){
-               JOptionPane.showMessageDialog(this, "User and Student deleted successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
+            if (userDAOImpl.deleteUser(this.user.getUserId()) == true) {
+                JOptionPane.showMessageDialog(this, "User and Student deleted successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
                 this.dispose();
-            }else{
+            } else {
                 JOptionPane.showMessageDialog(this, "User not deleted. An error occured.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -144,16 +148,33 @@ public class Teacher_Info extends javax.swing.JDialog {
         String advisory = advisoryCB.getSelectedItem().toString();
         int grade = Integer.parseInt(advisory.substring(0, 2));
         String section = advisory.substring(3);
-        
-        if(advisory != "None"){
+
+        if (!"None".equals(advisory)) {
+
+            if (classesDAOImpl.existsWithAdviser(grade, section)) {
+                JOptionPane.showMessageDialog(this, "This class already has an assigned adviser.", "Error", JOptionPane.ERROR_MESSAGE);
+                userDAOImpl.deleteUser(this.user.getUserId()); // Clean up newly added user
+                this.dispose();
+                return; // Stop the method
+            }
+
             teacher = new Teacher(-1, this.user.getUserId(), advisory, "", "");
-            
-            if (teacherDAOImpl.createTeacher(teacher) != null) {
+
+            Integer teacher_id = teacherDAOImpl.createTeacher(teacher);
+            if (teacher_id != null) {
                 JOptionPane.showMessageDialog(this, "User and Teacher added successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
-                
-                classes = new Classes(-1, this.teacher.getTeacherId())
-                if()
-                
+
+                this.teacher.setTeacherId(teacher_id);
+                classes = new Classes(-1, this.teacher.getTeacherId(), grade, section, "", "");
+                if (classesDAOImpl.create(classes) == true) {
+                    JOptionPane.showMessageDialog(this, "New class added.", "Notification", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "User and Teacher added, but failed to add new Class Advisory. User and Teacher deleted.", "Error", JOptionPane.ERROR_MESSAGE);
+                    teacherDAOImpl.deleteTeacher(this.teacher.getTeacherId());
+                    userDAOImpl.deleteUser(this.user.getUserId());
+                    this.dispose();
+                }
+
                 this.dispose(); // Close dialog after success
             } else {
                 userDAOImpl.deleteUser(this.user.getUserId());

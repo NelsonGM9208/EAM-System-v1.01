@@ -128,4 +128,21 @@ public class ClassesDAOImpl implements ClassesDAO{
             return false;
         }
     }
+    
+    public boolean existsWithAdviser(int grade, String section) {
+    String sql = "SELECT COUNT(*) FROM classes WHERE grade = ? AND section = ? AND teacher_id IS NOT NULL";
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setInt(1, grade);
+        stmt.setString(2, section);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
 }
