@@ -20,7 +20,7 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public boolean create(Student student){
         String query = "INSERT INTO students(lrn, grade_level, section, class_id, photo_path) "
-                + "VALUES(?, ?, ?, ?, ?, ?, ?)";
+                + "VALUES(?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -33,6 +33,7 @@ public class StudentDAOImpl implements StudentDAO {
             
             return true;
         }catch(SQLException e){
+            e.printStackTrace();
             return false;
         }
     }

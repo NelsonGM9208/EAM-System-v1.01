@@ -5,19 +5,21 @@
 package mainGUIs;
 
 import javax.swing.JOptionPane;
+import models.User;
 
 /**
  *
  * @author HansBVitorillo
  */
 public class Teacher_Info extends javax.swing.JDialog {
-
+    private User user;
     /**
      * Creates new form Teacher_Info
      */
-    public Teacher_Info(java.awt.Frame parent, boolean modal) {
+    public Teacher_Info(java.awt.Frame parent, boolean modal, User user) {
         super(parent, modal);
         initComponents();
+        this.user = user;
     }
 
     /**
@@ -149,7 +151,7 @@ public class Teacher_Info extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Teacher_Info dialog = new Teacher_Info(new javax.swing.JFrame(), true);
+                Teacher_Info dialog = new Teacher_Info(new javax.swing.JFrame(), true, null);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

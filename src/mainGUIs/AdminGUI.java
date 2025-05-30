@@ -1103,18 +1103,19 @@ public class AdminGUI extends javax.swing.JFrame {
                 
                 //check role
                 if ("Teacher".equals(role)) {
-                    Teacher_Info teacherInfo = new Teacher_Info(this, true);
+                    this.user = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
+                    Teacher_Info teacherInfo = new Teacher_Info(this, true, this.user);
                     teacherInfo.show(true);
                 } else if ("Student".equals(role)) {
-                    StudentInfo studentInfo = new StudentInfo(this, true);
+                    this.user = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
+                    StudentInfo studentInfo = new StudentInfo(this, true, this.user);
                     studentInfo.show(true);
                 } else {
-                    user = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
-                    
+                    this.user = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
                     //add user as admin
-                    if (userDAOImpl.addUser(user)) {
+                    if (userDAOImpl.addUser(this.user)) {
                         JOptionPane.showMessageDialog(this,
-                                "User Succesfully Added", "Notification",
+                                "Admin user Succesfully Added", "Notification",
                                 JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(this,

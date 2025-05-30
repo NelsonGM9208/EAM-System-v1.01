@@ -8,6 +8,7 @@ import implementations.StudentDAOImpl;
 import implementations.UserDAOImpl;
 import javax.swing.JOptionPane;
 import models.Student;
+import models.User;
 
 /**
  *
@@ -18,12 +19,14 @@ public class StudentInfo extends java.awt.Dialog {
     StudentDAOImpl studentDAOImpl = new StudentDAOImpl();
     AdminGUI adminGUI = new AdminGUI();
     Student student = null;
+    private final User user;
     /**
      * Creates new form StudentInfo
      */
-    public StudentInfo(java.awt.Frame parent, boolean modal) {
+    public StudentInfo(java.awt.Frame parent, boolean modal, User user) {
         super(parent, modal);
         initComponents();
+        this.user = user;
     }
 
     /**
@@ -82,7 +85,7 @@ public class StudentInfo extends java.awt.Dialog {
         jPanel1.add(gradeCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 100, 110, 30));
 
         sectionCB.setBackground(new java.awt.Color(204, 204, 204));
-        sectionCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ABM", "HE1", "HE2A", "HE2B", "HUMMS", "STEM" }));
+        sectionCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ABM", "HE1", "HE2A", "HE2B", "HUMMS", "ICT", "STEM" }));
         jPanel1.add(sectionCB, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 140, 110, 30));
         jPanel1.add(lrnTF, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 60, 260, 30));
 
@@ -92,6 +95,7 @@ public class StudentInfo extends java.awt.Dialog {
         add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     /**
@@ -117,10 +121,14 @@ public class StudentInfo extends java.awt.Dialog {
         String grade = gradeCB.getSelectedItem().toString();
         String section = sectionCB.getSelectedItem().toString();
         
-        if(!(lrnTF.getText().isEmpty() && lrn.length() < 12)){
-            userDAOImpl.addUser(adminGUI.user);
-            student = 
-            studentDAOImpl.create(student);
+        if(!lrn.isEmpty() && lrn.length() == 12){
+            student = new Student(-1, -1, Long.parseLong(lrn), Integer.parseInt(grade), section, -1, "", "", "");
+            
+            if(userDAOImpl.addUser(this.user) == true && studentDAOImpl.create(student) == true){
+                JOptionPane.showMessageDialog(this, "User and Student added successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
+            }else{
+                JOptionPane.showMessageDialog(this, "An error occured. User and Student not added.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }else{
             JOptionPane.showMessageDialog(this, "Input a valid LRN", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -132,7 +140,7 @@ public class StudentInfo extends java.awt.Dialog {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                StudentInfo dialog = new StudentInfo(new java.awt.Frame(), true);
+                StudentInfo dialog = new StudentInfo(new java.awt.Frame(), true, null);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     public void windowClosing(java.awt.event.WindowEvent e) {
                         System.exit(0);

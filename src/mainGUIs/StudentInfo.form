@@ -3,7 +3,7 @@
 <Form version="1.2" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.DialogFormInfo">
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
-    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="true"/>
   </SyntheticProperties>
   <Events>
     <EventHandler event="windowClosing" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="closeDialog"/>
@@ -124,13 +124,14 @@
               <Color blue="cc" green="cc" red="cc" type="rgb"/>
             </Property>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="6">
+              <StringArray count="7">
                 <StringItem index="0" value="ABM"/>
                 <StringItem index="1" value="HE1"/>
                 <StringItem index="2" value="HE2A"/>
                 <StringItem index="3" value="HE2B"/>
                 <StringItem index="4" value="HUMMS"/>
-                <StringItem index="5" value="STEM"/>
+                <StringItem index="5" value="ICT"/>
+                <StringItem index="6" value="STEM"/>
               </StringArray>
             </Property>
           </Properties>
