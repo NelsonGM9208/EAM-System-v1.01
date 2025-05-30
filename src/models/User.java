@@ -111,7 +111,7 @@ public class User {
         this.email = email;
     }
 
-    public String isIsActive() {
+    public String getIsActive() {
         return isActive;
     }
 

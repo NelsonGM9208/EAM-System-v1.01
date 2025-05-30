@@ -6,6 +6,7 @@ package mainGUIs;
 
 import implementations.UserDAOImpl;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import models.User;
 import util.HashUtil;
 
@@ -23,6 +24,39 @@ public class AdminGUI extends javax.swing.JFrame {
      */
     public AdminGUI() {
         initComponents();
+        refreshTables();
+    }
+    
+    private void resetUsersForm() {
+    usersUsernameTF.setText("");
+    usersPasswordTF.setText("");
+    showCB.setSelected(false);
+    usersFnTF.setText("");
+    usersLnTF.setText("");
+    usersEmailTF.setText("");
+    roleBG.clearSelection(); // Deselects any selected radio button in the ToggleGroup
+    }
+    
+    public void refreshUsersTBL(){
+        DefaultTableModel model = (DefaultTableModel) usersTBL.getModel();
+        model.setRowCount(0);
+        
+        for(User user : userDAOImpl.getAllUsers()){
+            model.addRow(new Object[]{
+                user.getUserId(),
+                user.getUsername(),
+                user.getLastname() + ", " + user.getFirstname(),
+                user.getRole(),
+                user.getEmail(),
+                user.getCreated_at(),
+                user.getUpdated_at(),
+                user.getIsActive()
+            });
+        }
+    }
+    
+    public void refreshTables(){
+        refreshUsersTBL();
     }
 
     /**
@@ -35,6 +69,9 @@ public class AdminGUI extends javax.swing.JFrame {
     private void initComponents() {
 
         roleBG = new javax.swing.ButtonGroup();
+        usersPUM = new javax.swing.JPopupMenu();
+        editMI = new javax.swing.JMenuItem();
+        deleteMI = new javax.swing.JMenuItem();
         jPanel1 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel9 = new javax.swing.JPanel();
@@ -42,7 +79,7 @@ public class AdminGUI extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jPanel11 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        usersTBL = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jComboBox1 = new javax.swing.JComboBox<>();
         jScrollBar1 = new javax.swing.JScrollBar();
@@ -131,6 +168,12 @@ public class AdminGUI extends javax.swing.JFrame {
         roleBG.add(teacherRB);
         roleBG.add(studentRB);
 
+        editMI.setText("Edit User");
+        usersPUM.add(editMI);
+
+        deleteMI.setText("Delete User");
+        usersPUM.add(deleteMI);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.LEFT);
@@ -163,7 +206,7 @@ public class AdminGUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Dashboard", jPanel9);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        usersTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -171,7 +214,12 @@ public class AdminGUI extends javax.swing.JFrame {
                 "User ID", "Username", "Name", "Role", "Email", "Created At", "Updated At", "Status"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        usersTBL.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                usersTBLMouseReleased(evt);
+            }
+        });
+        jScrollPane1.setViewportView(usersTBL);
 
         jPanel3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
@@ -1135,7 +1183,9 @@ public class AdminGUI extends javax.swing.JFrame {
             studentInfo.show(true);
         }
         // No additional dialog needed for Admin
-
+        
+        //resetForm
+        resetUsersForm();
     }//GEN-LAST:event_usersSaveBTNActionPerformed
 
     private void showCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCBActionPerformed
@@ -1159,6 +1209,21 @@ public class AdminGUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         JOptionPane.showMessageDialog(this, "This tab is still under development.", "Notification", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void usersTBLMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usersTBLMouseReleased
+        // TODO add your handling code here:
+        if (evt.isPopupTrigger()) { 
+            int row = usersTBL.rowAtPoint(evt.getPoint());
+        
+            if (row >= 0) {
+                usersTBL.setRowSelectionInterval(row, row); 
+            }
+
+            usersPUM.show(usersTBL, evt.getX(), evt.getY()); 
+        } else {
+            System.out.println("Nothing happened!");
+        }
+    }//GEN-LAST:event_usersTBLMouseReleased
 
     /**
      * @param args the command line arguments
@@ -1197,6 +1262,8 @@ public class AdminGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton adminRB;
+    private javax.swing.JMenuItem deleteMI;
+    private javax.swing.JMenuItem editMI;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton14;
@@ -1265,7 +1332,6 @@ public class AdminGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable4;
     private javax.swing.JTable jTable5;
@@ -1285,8 +1351,10 @@ public class AdminGUI extends javax.swing.JFrame {
     private javax.swing.JTextField usersEmailTF;
     private javax.swing.JTextField usersFnTF;
     private javax.swing.JTextField usersLnTF;
+    private javax.swing.JPopupMenu usersPUM;
     private javax.swing.JPasswordField usersPasswordTF;
     private javax.swing.JButton usersSaveBTN;
+    private javax.swing.JTable usersTBL;
     private javax.swing.JTextField usersUsernameTF;
     // End of variables declaration//GEN-END:variables
 }

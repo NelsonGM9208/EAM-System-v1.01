@@ -30,7 +30,7 @@ public class UserDAOImpl implements UserDAO {
         stmt.setString(4, user.getFirstname());
         stmt.setString(5, user.getLastname());
         stmt.setString(6, user.getEmail());
-        stmt.setString(7, user.isIsActive());
+        stmt.setString(7, user.getIsActive());
 
         int affectedRows = stmt.executeUpdate();
 
@@ -142,7 +142,7 @@ public class UserDAOImpl implements UserDAO {
             stmt.setString(4, user.getFirstname());
             stmt.setString(5, user.getLastname());
             stmt.setString(6, user.getEmail());
-            stmt.setString(7, user.isIsActive());
+            stmt.setString(7, user.getIsActive());
             stmt.setInt(8, user.getUserId());
 
             stmt.executeUpdate();
