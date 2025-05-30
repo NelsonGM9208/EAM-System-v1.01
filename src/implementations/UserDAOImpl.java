@@ -18,25 +18,39 @@ import models.User;
 public class UserDAOImpl implements UserDAO {
 
     @Override
-    public boolean addUser(User user) {
-        String sql = "INSERT INTO users (username, password, role, first_name, last_name, email, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword());
-            stmt.setString(3, user.getRole());
-            stmt.setString(4, user.getFirstname());
-            stmt.setString(5, user.getLastname());
-            stmt.setString(6, user.getEmail());
-            stmt.setString(7, user.isIsActive());
-            stmt.executeUpdate();
+    public Integer addUser(User user) {
+    String sql = "INSERT INTO users (username, password, role, first_name, last_name, email, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            return true;
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+        stmt.setString(1, user.getUsername());
+        stmt.setString(2, user.getPassword());
+        stmt.setString(3, user.getRole());
+        stmt.setString(4, user.getFirstname());
+        stmt.setString(5, user.getLastname());
+        stmt.setString(6, user.getEmail());
+        stmt.setString(7, user.isIsActive());
+
+        int affectedRows = stmt.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Creating user failed, no rows affected.");
         }
+
+        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                return generatedKeys.getInt(1); // Return the newly inserted user_id
+            } else {
+                throw new SQLException("Creating user failed, no ID obtained.");
+            }
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return null;
     }
+}
 
     @Override
     public User getUserById(int userId) {
@@ -47,7 +61,7 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), 
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"),
                         rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
             }
             return user;
@@ -55,8 +69,8 @@ public class UserDAOImpl implements UserDAO {
             return null;
         }
     }
-    
-    public User getUserByUsername(String username){
+
+    public User getUserByUsername(String username) {
         User user = null;
         String sql = "SELECT * FROM users WHERE username = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -64,7 +78,7 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), 
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"),
                         rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
             }
             return user;
@@ -72,7 +86,7 @@ public class UserDAOImpl implements UserDAO {
             return null;
         }
     }
-    
+
     @Override
     public List<User> searchUser(String str) {
         String sql = "SELECT * FROM users WHERE username LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR email LIKE ?";
@@ -89,7 +103,7 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), 
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"),
                         rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }
@@ -108,12 +122,12 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), 
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"),
                         rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }
             return users;
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             return null;
         }
     }
@@ -140,14 +154,35 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean deleteUser(int userId) {
-        String sql = "DELETE FROM users WHERE id = ?";
+        String sql = "DELETE FROM users WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             stmt.executeUpdate();
 
             return true;
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
+    /*
+    public Integer getUserIdByUsername(String username) {
+        String query = "SELECT user_id FROM users WHERE username = ?";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("user_id");
+            } else {
+                return null; // Username not found
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }*/
 }

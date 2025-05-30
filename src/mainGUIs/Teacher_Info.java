@@ -4,14 +4,22 @@
  */
 package mainGUIs;
 
+import implementations.TeacherDAOImpl;
+import implementations.UserDAOImpl;
 import javax.swing.JOptionPane;
+import models.Teacher;
 import models.User;
+import models.Classes;
 
 /**
  *
  * @author HansBVitorillo
  */
 public class Teacher_Info extends javax.swing.JDialog {
+    UserDAOImpl userDAOImpl = new UserDAOImpl();
+    TeacherDAOImpl teacherDAOImpl = new TeacherDAOImpl();
+    Teacher teacher;
+    Classes classes;
     private User user;
     /**
      * Creates new form Teacher_Info
@@ -33,9 +41,9 @@ public class Teacher_Info extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        advisoryCB = new javax.swing.JComboBox<>();
+        addTeacherBTN = new javax.swing.JButton();
+        backBTN = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -43,22 +51,27 @@ public class Teacher_Info extends javax.swing.JDialog {
 
         jLabel2.setText("Advisory:");
 
-        jComboBox2.setBackground(new java.awt.Color(204, 204, 204));
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None", "11-ABM", "11-HE1", "11-HE2A", "11-HE2B", "11-HUMMS", "11-ICT", "11-STEM", "12-ABM", " 12-HE1", " 12-HE2A", " 12-HE2B", "12-HUMMS", " 12-ICT", " 12-STEM", " " }));
-        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+        advisoryCB.setBackground(new java.awt.Color(204, 204, 204));
+        advisoryCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None", "11-ABM", "11-HE1", "11-HE2A", "11-HE2B", "11-HUMMS", "11-ICT", "11-STEM", "12-ABM", " 12-HE1", " 12-HE2A", " 12-HE2B", "12-HUMMS", " 12-ICT", " 12-STEM", " " }));
+        advisoryCB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox2ActionPerformed(evt);
+                advisoryCBActionPerformed(evt);
             }
         });
 
-        jButton1.setBackground(new java.awt.Color(204, 204, 204));
-        jButton1.setText("Add Teacher");
-
-        jButton2.setBackground(new java.awt.Color(204, 204, 204));
-        jButton2.setText("Back");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        addTeacherBTN.setBackground(new java.awt.Color(204, 204, 204));
+        addTeacherBTN.setText("Add Teacher");
+        addTeacherBTN.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                addTeacherBTNActionPerformed(evt);
+            }
+        });
+
+        backBTN.setBackground(new java.awt.Color(204, 204, 204));
+        backBTN.setText("Back");
+        backBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backBTNActionPerformed(evt);
             }
         });
 
@@ -70,13 +83,13 @@ public class Teacher_Info extends javax.swing.JDialog {
                 .addGap(49, 49, 49)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
-                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(advisoryCB, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(60, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addComponent(addTeacherBTN)
                 .addGap(18, 18, 18)
-                .addComponent(jButton2)
+                .addComponent(backBTN)
                 .addGap(84, 84, 84))
         );
         jPanel1Layout.setVerticalGroup(
@@ -85,11 +98,11 @@ public class Teacher_Info extends javax.swing.JDialog {
                 .addGap(28, 28, 28)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(advisoryCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(29, 29, 29)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(addTeacherBTN)
+                    .addComponent(backBTN))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -108,18 +121,47 @@ public class Teacher_Info extends javax.swing.JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+    private void advisoryCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advisoryCBActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox2ActionPerformed
+    }//GEN-LAST:event_advisoryCBActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void backBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBTNActionPerformed
         // TODO add your handling code here:
-        int option = JOptionPane.showConfirmDialog(this, "Are you sure to discard the infos above?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(this, "Are you sure to discard the infos above and remove the User account?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         
-        if(option == 0){
-            this.dispose();
+        if (option == 0) {
+            if(userDAOImpl.deleteUser(this.user.getUserId()) == true){
+               JOptionPane.showMessageDialog(this, "User and Student deleted successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+            }else{
+                JOptionPane.showMessageDialog(this, "User not deleted. An error occured.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_backBTNActionPerformed
+
+    private void addTeacherBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTeacherBTNActionPerformed
+        // TODO add your handling code here:
+        String advisory = advisoryCB.getSelectedItem().toString();
+        int grade = Integer.parseInt(advisory.substring(0, 2));
+        String section = advisory.substring(3);
+        
+        if(advisory != "None"){
+            teacher = new Teacher(-1, this.user.getUserId(), advisory, "", "");
+            
+            if (teacherDAOImpl.createTeacher(teacher) != null) {
+                JOptionPane.showMessageDialog(this, "User and Teacher added successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
+                
+                classes = new Classes(-1, this.teacher.getTeacherId())
+                if()
+                
+                this.dispose(); // Close dialog after success
+            } else {
+                userDAOImpl.deleteUser(this.user.getUserId());
+                JOptionPane.showMessageDialog(this, "User added, but failed to add Teacher. User deleted.", "Error", JOptionPane.ERROR_MESSAGE);
+                this.dispose();
+            }
+        }
+    }//GEN-LAST:event_addTeacherBTNActionPerformed
 
     /**
      * @param args the command line arguments
@@ -164,9 +206,9 @@ public class Teacher_Info extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JButton addTeacherBTN;
+    private javax.swing.JComboBox<String> advisoryCB;
+    private javax.swing.JButton backBTN;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables

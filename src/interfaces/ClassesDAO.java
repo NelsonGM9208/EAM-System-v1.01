@@ -5,24 +5,21 @@
 package interfaces;
 
 import java.util.List;
-import models.Class;
+import models.Classes;
 
 /**
  *
- * @author HansBVitorillo
+ * @author NelsonJrLHerrera
  */
-public interface ClassDAO {
-   
-
-    public boolean create(Class class);
-
-    public Class read_one(int class_id);
-
-    public List<Class> read_all();
-
-    public boolean update(Class class);
+public interface ClassesDAO {
+    
+    public boolean create(Classes classes);
+    
+    public Classes read_one(int class_id);
+    
+    public List<Classes> read_all();
+    
+    public boolean update(Classes classes);
     
     public boolean delete(int class_id);
 }
-
-

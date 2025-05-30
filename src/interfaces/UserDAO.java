@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface UserDAO {
 
-    public boolean addUser(User user);
+    public Integer addUser(User user);
     
     public User getUserById(int userId);
     

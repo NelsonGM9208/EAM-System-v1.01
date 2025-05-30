@@ -13,7 +13,7 @@ import models.Teacher;
  */
 public interface TeacherDAO {
 
-    public boolean createTeacher(Teacher teacher);
+    public Integer createTeacher(Teacher teacher);
 
     public List<Teacher> getAllTeachers();
 

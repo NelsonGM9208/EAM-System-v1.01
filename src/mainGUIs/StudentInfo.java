@@ -15,11 +15,12 @@ import models.User;
  * @author NelsonJrLHerrera
  */
 public class StudentInfo extends java.awt.Dialog {
+
     UserDAOImpl userDAOImpl = new UserDAOImpl();
     StudentDAOImpl studentDAOImpl = new StudentDAOImpl();
-    AdminGUI adminGUI = new AdminGUI();
     Student student = null;
     private final User user;
+
     /**
      * Creates new form StudentInfo
      */
@@ -108,10 +109,15 @@ public class StudentInfo extends java.awt.Dialog {
 
     private void backBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBTNActionPerformed
         // TODO add your handling code here:
-        int option = JOptionPane.showConfirmDialog(this, "Are you sure to discard the infos above?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(this, "Are you sure to discard the infos above and remove the User account?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
         
-        if(option == 0){
-            this.dispose();
+        if (option == 0) {
+            if(userDAOImpl.deleteUser(this.user.getUserId()) == true){
+               JOptionPane.showMessageDialog(this, "User and Student deleted successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
+                this.dispose();
+            }else{
+                JOptionPane.showMessageDialog(this, "User not deleted. An error occured.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_backBTNActionPerformed
 
@@ -120,16 +126,19 @@ public class StudentInfo extends java.awt.Dialog {
         String lrn = lrnTF.getText();
         String grade = gradeCB.getSelectedItem().toString();
         String section = sectionCB.getSelectedItem().toString();
-        
-        if(!lrn.isEmpty() && lrn.length() == 12){
-            student = new Student(-1, -1, Long.parseLong(lrn), Integer.parseInt(grade), section, -1, "", "", "");
+
+        if (!lrn.isEmpty() && lrn.length() == 12) {
+            student = new Student(-1, this.user.getUserId(), Long.parseLong(lrn), Integer.parseInt(grade), section, 1, "", "", "");
             
-            if(userDAOImpl.addUser(this.user) == true && studentDAOImpl.create(student) == true){
+            if (studentDAOImpl.create(student)) {
                 JOptionPane.showMessageDialog(this, "User and Student added successfully", "Notification", JOptionPane.INFORMATION_MESSAGE);
-            }else{
-                JOptionPane.showMessageDialog(this, "An error occured. User and Student not added.", "Error", JOptionPane.ERROR_MESSAGE);
+                this.dispose(); // Close dialog after success
+            } else {
+                userDAOImpl.deleteUser(this.user.getUserId());
+                JOptionPane.showMessageDialog(this, "User added, but failed to add student.", "Error", JOptionPane.ERROR_MESSAGE);
+                this.dispose();
             }
-        }else{
+        } else {
             JOptionPane.showMessageDialog(this, "Input a valid LRN", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_addBTNActionPerformed

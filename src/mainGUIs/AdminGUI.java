@@ -1069,14 +1069,15 @@ public class AdminGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_usersDiscardBTNActionPerformed
 
     private void usersSaveBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usersSaveBTNActionPerformed
-        // TODO add your handling code here:
+       // TODO add your handling code here:
         String username = usersUsernameTF.getText().trim();
-        String rawPassword = usersPasswordTF.getText().trim();  // raw, for validation
+        String rawPassword = usersPasswordTF.getText().trim();
         String firstname = usersFnTF.getText().trim();
         String lastname = usersLnTF.getText().trim();
         String email = usersEmailTF.getText().trim();
         String role = null;
 
+        // Determine role
         if (adminRB.isSelected()) {
             role = "Admin";
         } else if (teacherRB.isSelected()) {
@@ -1084,51 +1085,57 @@ public class AdminGUI extends javax.swing.JFrame {
         } else if (studentRB.isSelected()) {
             role = "Student";
         }
-        
-        //Validate fields
-        boolean checkInputs
-                = username.isEmpty()
-                || rawPassword.isEmpty()
-                || firstname.isEmpty()
-                || lastname.isEmpty()
-                || email.isEmpty()
-                || role == null;
 
-        if (checkInputs) {
+        // Validate inputs
+        if (username.isEmpty() || rawPassword.isEmpty() || firstname.isEmpty()
+                || lastname.isEmpty() || email.isEmpty() || role == null) {
+
             JOptionPane.showMessageDialog(this, "Fill out all the fields in the form.");
-        } else {
-            //check if username already exist
-            if (userDAOImpl.getUserByUsername(username) == null) {
-                String password = HashUtil.sha256(rawPassword); // Only hash after validation
-                
-                //check role
-                if ("Teacher".equals(role)) {
-                    this.user = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
-                    Teacher_Info teacherInfo = new Teacher_Info(this, true, this.user);
-                    teacherInfo.show(true);
-                } else if ("Student".equals(role)) {
-                    this.user = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
-                    StudentInfo studentInfo = new StudentInfo(this, true, this.user);
-                    studentInfo.show(true);
-                } else {
-                    this.user = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
-                    //add user as admin
-                    if (userDAOImpl.addUser(this.user)) {
-                        JOptionPane.showMessageDialog(this,
-                                "Admin user Succesfully Added", "Notification",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this,
-                                "An error occured. User not added.",
-                                "Notification", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Username already exist. User not added.",
-                        "Notification", JOptionPane.ERROR_MESSAGE);
-            }
+            return;
         }
+
+        // Check if username already exists
+        if (userDAOImpl.getUserByUsername(username) != null) {
+            JOptionPane.showMessageDialog(this,
+                    "Username already exists. User not added.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Hash password only after validation
+        String password = HashUtil.sha256(rawPassword);
+
+        // Create user object
+        User newUser = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
+
+        // Insert user into database
+        Integer userId = userDAOImpl.addUser(newUser);
+
+        if (userId == null) {
+            JOptionPane.showMessageDialog(this,
+                    "An error occurred. User not added.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Set generated userId to the user object
+        newUser.setUserId(userId);
+        this.user = newUser;
+
+        JOptionPane.showMessageDialog(this,
+                "User Successfully Added", "Notification",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        // Open dialog based on role
+        if ("Teacher".equals(role)) {
+            Teacher_Info teacherInfo = new Teacher_Info(this, true, this.user);
+            teacherInfo.show(true);
+        } else if ("Student".equals(role)) {
+            StudentInfo studentInfo = new StudentInfo(this, true, this.user);
+            studentInfo.show(true);
+        }
+        // No additional dialog needed for Admin
+
     }//GEN-LAST:event_usersSaveBTNActionPerformed
 
     private void showCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCBActionPerformed

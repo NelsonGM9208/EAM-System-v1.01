@@ -8,19 +8,39 @@ package models;
  *
  * @author HansBVitorillo
  */
-public class Class {
+public class Classes {
     private int class_id;
     private int adviser_id;
     private int grade; 
     private String section;
+    private String created_at;
+    private String updated_at;
     
-    public Class(int class_id, int adviser_id, int grade, String section){
+    public Classes(int class_id, int adviser_id, int grade, String section, String created_at, String updated_at){
         this.class_id = class_id;
         this.adviser_id = adviser_id;
         this.grade = grade;
         this.section = section;
+        this.created_at = created_at;
+        this.updated_at = updated_at;
     }
 
+    public String getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
+    }
+
+    public String getUpdated_at() {
+        return updated_at;
+    }
+
+    public void setUpdated_at(String updated_at) {
+        this.updated_at = updated_at;
+    }
+    
     public int getClass_id() {
         return class_id;
     }

@@ -16,11 +16,11 @@ import models.Student;
  * @author NelsonJrLHerrera
  */
 public class StudentDAOImpl implements StudentDAO {
-
+    
     @Override
     public boolean create(Student student){
-        String query = "INSERT INTO students(lrn, grade_level, section, class_id, photo_path) "
-                + "VALUES(?, ?, ?, ?, ?)";
+        String query = "INSERT INTO students(lrn, grade_level, section, class_id, photo_path, user_id) "
+                + "VALUES(?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -29,6 +29,7 @@ public class StudentDAOImpl implements StudentDAO {
             pstmt.setString(3, student.getSection());
             pstmt.setInt(4, student.getClass_id());
             pstmt.setString(5, student.getPhotoPath());
+            pstmt.setInt(6, student.getUser_id());
             pstmt.executeUpdate();
             
             return true;

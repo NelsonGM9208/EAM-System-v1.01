@@ -18,15 +18,26 @@ import models.Teacher;
 public class TeacherDAOImpl implements TeacherDAO {
 
     @Override
-    public boolean createTeacher(Teacher teacher) {
+    public Integer createTeacher(Teacher teacher) {
         String sql = "INSERT INTO teachers (advisory_class) VALUES (?)";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, teacher.getAdvisoryClass());
-            stmt.executeUpdate();
+            int affectedRows = stmt.executeUpdate();
 
-            return true;
+            if (affectedRows == 0) {
+                throw new SQLException("Creating user failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Return the newly inserted user_id
+                } else {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
+            }
         } catch (SQLException e) {
-            return false;
+            e.printStackTrace();
+            return null;
         }
     }
 
