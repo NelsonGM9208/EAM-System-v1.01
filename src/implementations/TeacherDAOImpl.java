@@ -68,11 +68,11 @@ public class TeacherDAOImpl implements TeacherDAO {
     }
 
     @Override
-    public Teacher getTeacherById(String teacherId) {
+    public Teacher getTeacherById(int teacherId) {
         Teacher teacher = null;
         String sql = "SELECT * FROM teachers WHERE teacher_id = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, Integer.parseInt(teacherId));
+            stmt.setInt(1, teacherId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 teacher = new Teacher(
@@ -139,6 +139,27 @@ public class TeacherDAOImpl implements TeacherDAO {
             return true;
         } catch (SQLException e) {
             return false;
+        }
+    }
+    
+    public Teacher getTeacherByUserId(int userId) {
+        Teacher teacher = null;
+        String sql = "SELECT * FROM teachers WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                teacher = new Teacher(
+                        rs.getInt("teacher_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("advisory_class"),
+                        rs.getString("created_at"),
+                        rs.getString("updated_at")
+                );
+            }
+            return teacher;
+        } catch (SQLException e) {
+            return null;
         }
     }
 }

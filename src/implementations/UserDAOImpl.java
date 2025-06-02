@@ -55,17 +55,18 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public User getUserById(int userId) {
         User user = null;
-        String sql = "SELECT * FROM users WHERE id = ?";
+        String sql = "SELECT * FROM users WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"), rs.getString("email"),
                         rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
             }
             return user;
         } catch (SQLException ex) {
+            ex.printStackTrace();
             return null;
         }
     }
@@ -78,7 +79,7 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"), rs.getString("email"),
                         rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
             }
             return user;
@@ -103,7 +104,7 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"), rs.getString("email"),
                         rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }
@@ -122,7 +123,7 @@ public class UserDAOImpl implements UserDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"), rs.getString("email"),
                         rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }

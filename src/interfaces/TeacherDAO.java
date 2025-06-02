@@ -17,7 +17,7 @@ public interface TeacherDAO {
 
     public List<Teacher> getAllTeachers();
 
-    public Teacher getTeacherById(String teacherId);
+    public Teacher getTeacherById(int teacherId);
 
     public List<Teacher> searchTeachers(String keyword);
 

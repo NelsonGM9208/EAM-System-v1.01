@@ -2,22 +2,27 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package mainGUIs;
+package EAMSystem;
+
+import mainGUIs.LoginGUI;
 
 /**
  *
  * @author HansBVitorillo
  */
 public class SplashScreenGUI extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form SplashScrenGUI
      */
     public SplashScreenGUI() {
         initComponents();
+        greetLBL.setText("WELCOME TO EAM SYSTEM");
     }
 
-    
+    public void setGreetLBL(String greet){
+        greetLBL.setText(greet);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -30,7 +35,7 @@ public class SplashScreenGUI extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        greetLBL = new javax.swing.JLabel();
         bar = new javax.swing.JProgressBar();
         progress = new javax.swing.JLabel();
 
@@ -40,9 +45,9 @@ public class SplashScreenGUI extends javax.swing.JFrame {
 
         jPanel2.setBackground(new java.awt.Color(153, 255, 204));
 
-        jLabel1.setBackground(new java.awt.Color(0, 102, 0));
-        jLabel1.setFont(new java.awt.Font("Calibri", 1, 48)); // NOI18N
-        jLabel1.setText("WELCOME TO EAM SYSTEM");
+        greetLBL.setBackground(new java.awt.Color(0, 102, 0));
+        greetLBL.setFont(new java.awt.Font("Calibri", 1, 48)); // NOI18N
+        greetLBL.setText("WELCOME TO EAM SYSTEM");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -50,14 +55,14 @@ public class SplashScreenGUI extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(69, 69, 69)
-                .addComponent(jLabel1)
+                .addComponent(greetLBL)
                 .addContainerGap(80, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(26, Short.MAX_VALUE)
-                .addComponent(jLabel1)
+                .addComponent(greetLBL)
                 .addGap(15, 15, 15))
         );
 
@@ -151,7 +156,7 @@ public class SplashScreenGUI extends javax.swing.JFrame {
     
      LoginGUI loginGUI = new LoginGUI();
     try{
-        for(int i =0; i<=100; i++){
+        for(int i =0; i<=100; i+=2){
         
         Thread.sleep(40);
         sc.bar.setValue(i);
@@ -168,7 +173,7 @@ public class SplashScreenGUI extends javax.swing.JFrame {
 }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar bar;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel greetLBL;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel progress;

@@ -15,13 +15,13 @@ import java.util.List;
  *
  * @author NelsonJrLHerrera
  */
-public class ClassesDAOImpl implements ClassesDAO{
+public class ClassesDAOImpl implements ClassesDAO {
+
     @Override
     public boolean create(Classes classes) {
         String query = "INSERT INTO classes (grade, section, adviser_id) VALUES ( ?, ?, ?)";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, classes.getGrade()); // updated
             pstmt.setString(2, classes.getSection());
             pstmt.setInt(3, classes.getAdviser_id());
@@ -39,9 +39,8 @@ public class ClassesDAOImpl implements ClassesDAO{
         Classes classes = null;
         String query = "SELECT * FROM classes WHERE class_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+
             pstmt.setInt(1, class_id);
             ResultSet rs = pstmt.executeQuery();
 
@@ -68,8 +67,7 @@ public class ClassesDAOImpl implements ClassesDAO{
         List<Classes> classList = new ArrayList<>();
         String query = "SELECT * FROM classes ORDER BY class_id ASC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             ResultSet rs = pstmt.executeQuery();
 
@@ -96,8 +94,7 @@ public class ClassesDAOImpl implements ClassesDAO{
     public boolean update(Classes classes) {
         String query = "UPDATE classes SET grade = ?, section = ?, adviser_id = ? WHERE class_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, classes.getGrade()); // updated
             pstmt.setString(2, classes.getSection());
             pstmt.setInt(3, classes.getAdviser_id());
@@ -116,8 +113,7 @@ public class ClassesDAOImpl implements ClassesDAO{
     public boolean delete(int class_id) {
         String query = "DELETE FROM classes WHERE class_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setInt(1, class_id);
             pstmt.executeUpdate();
@@ -128,21 +124,75 @@ public class ClassesDAOImpl implements ClassesDAO{
             return false;
         }
     }
-    
-    public boolean existsWithAdviser(int grade, String section) {
-    String sql = "SELECT COUNT(*) FROM classes WHERE grade = ? AND section = ? AND adviser_id IS NOT NULL";
-    try (Connection conn = DBConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-        stmt.setInt(1, grade);
-        stmt.setString(2, section);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1) > 0;
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return false;
-}
 
+    public boolean existsWithAdviser(int grade, String section) {
+        String sql = "SELECT COUNT(*) FROM classes WHERE grade = ? AND section = ? AND adviser_id IS NOT NULL";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, grade);
+            stmt.setString(2, section);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public List<Classes> readAllByAdviserId(int adviserId) {
+        List<Classes> classList = new ArrayList<>();
+        String query = "SELECT * FROM classes WHERE adviser_id = ?";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setInt(1, adviserId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Classes classes = new Classes(
+                            rs.getInt("class_id"),
+                            rs.getInt("adviser_id"),
+                            rs.getInt("grade"),
+                            rs.getString("section"),
+                            rs.getString("created_at"),
+                            rs.getString("updated_at")
+                    );
+                    classList.add(classes);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // Consider using logging in production
+        }
+
+        return classList;
+    }
+    
+    public Classes readOneByAdviserId(int adviserId) {
+        Classes classList = null;
+        String query = "SELECT * FROM classes WHERE adviser_id = ?";
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setInt(1, adviserId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                   classList = new Classes(
+                            rs.getInt("class_id"),
+                            rs.getInt("adviser_id"),
+                            rs.getInt("grade"),
+                            rs.getString("section"),
+                            rs.getString("created_at"),
+                            rs.getString("updated_at")
+                    );
+                }
+                return classList;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // Consider using logging in production
+        }
+
+        return classList;
+    }
 }

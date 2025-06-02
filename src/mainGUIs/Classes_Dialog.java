@@ -4,20 +4,67 @@
  */
 package mainGUIs;
 
+import implementations.StudentDAOImpl;
+import implementations.UserDAOImpl;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.swing.table.DefaultTableModel;
+import models.Classes;
+import models.Student;
+import models.User;
+
 /**
  *
  * @author HansBVitorillo
  */
 public class Classes_Dialog extends javax.swing.JDialog {
-
+    StudentDAOImpl studentDAOImpl = new StudentDAOImpl();
+    UserDAOImpl userDAOImpl = new UserDAOImpl();
+    int class_id;
     /**
      * Creates new form Classes_Dialog
      */
-    public Classes_Dialog(java.awt.Frame parent, boolean modal) {
+    public Classes_Dialog(java.awt.Frame parent, boolean modal, int class_id) {
         super(parent, modal);
+        this.class_id = class_id;
         initComponents();
+        refreshStudentsTBL();
     }
+    
+     public void refreshStudentsTBL() {
+        DefaultTableModel model = (DefaultTableModel) studentsTBL.getModel();
+        model.setRowCount(0); // clear previous data
 
+        List<Student> students = studentDAOImpl.read_all_by_class_id(this.class_id);
+        List<User> users = userDAOImpl.getAllUsers();
+
+        // Build a lookup map for faster user access by user_id
+        Map<Integer, User> userMap = new HashMap<>();
+        for (User user : users) {
+            userMap.put(user.getUserId(), user);
+        }
+
+        for (Student student : students) {
+            User user = userMap.get(student.getUser_id());
+
+            if (user != null) {
+                String fullName = user.getLastname() + ", " + user.getFirstname();
+
+                model.addRow(new Object[]{
+                    student.getLrn(),
+                    fullName,
+                    user.getGender(),
+                    user.getEmail(),
+                    student.getGradeLevel(),
+                    student.getSection(),
+                    user.getIsActive()
+                });
+            } else {
+                System.err.println("No user found for student with user_id = " + student.getUser_id());
+            }
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -27,35 +74,46 @@ public class Classes_Dialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        studentsPUM = new javax.swing.JPopupMenu();
+        viewAttendanceMI = new javax.swing.JMenuItem();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        studentsTBL = new javax.swing.JTable();
         jTextField2 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
 
+        viewAttendanceMI.setText("View Attendance");
+        studentsPUM.add(viewAttendanceMI);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        studentsTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Student", "Grade", "Section", "Subject"
+                "LRN", "Student", "Gender", "Email", "Grade", "Section", "Status"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                true, false, true, true, false, false, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(studentsTBL);
 
-        jTextField2.setText("Search:");
+        jTextField2.setForeground(new java.awt.Color(102, 102, 102));
+        jTextField2.setText("Search a student...");
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField2ActionPerformed(evt);
+            }
+        });
 
         jButton1.setText("Search");
 
@@ -81,7 +139,12 @@ public class Classes_Dialog extends javax.swing.JDialog {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -113,7 +176,7 @@ public class Classes_Dialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Classes_Dialog dialog = new Classes_Dialog(new javax.swing.JFrame(), true);
+                Classes_Dialog dialog = new Classes_Dialog(new javax.swing.JFrame(), true, -1);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -128,7 +191,9 @@ public class Classes_Dialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JPopupMenu studentsPUM;
+    private javax.swing.JTable studentsTBL;
+    private javax.swing.JMenuItem viewAttendanceMI;
     // End of variables declaration//GEN-END:variables
 }

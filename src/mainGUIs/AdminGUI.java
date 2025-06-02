@@ -5,6 +5,9 @@
 package mainGUIs;
 
 import implementations.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,47 +21,64 @@ import util.HashUtil;
  * @author NelsonJrLHerrera
  */
 public class AdminGUI extends javax.swing.JFrame {
+
     StudentDAOImpl studentDAOImpl = new StudentDAOImpl();
     UserDAOImpl userDAOImpl = new UserDAOImpl();
     TeacherDAOImpl teacherDAOImpl = new TeacherDAOImpl();
     ClassesDAOImpl classesDAOImpl = new ClassesDAOImpl();
+    EventDAOImpl eventDAOImpl = new EventDAOImpl();
     User user = null;
+    private static User loggedInUser;
 
     /**
      * Creates new form AdminGUI
      */
-    public AdminGUI() {
+    public AdminGUI(User user) {
+        this.loggedInUser = user;
         initComponents();
         refreshTables();
+        greetUser();
     }
-    
+
+    public void greetUser() {
+        greetLBL.setText("Welcome to EAM-System Teacher " + this.loggedInUser.getFirstname() + " " + this.loggedInUser.getLastname());
+    }
+
     private void resetUsersForm() {
-    usersUsernameTF.setText("");
-    showCB.setSelected(false);
-    usersFnTF.setText("");
-    usersLnTF.setText("");
-    usersEmailTF.setText("");
-    roleBG.clearSelection(); // Deselects any selected radio button in the ToggleGroup
+        usersUsernameTF.setText("");
+        showCB.setSelected(false);
+        usersFnTF.setText("");
+        usersLnTF.setText("");
+        usersEmailTF.setText("");
+        roleBG.clearSelection(); // Deselects any selected radio button in the ToggleGroup
     }
-    
-    /*private void resetEventsForm() {
-    eventNameTF.setText("");
-    event.setSelected(false);
-    usersFnTF.setText("");
-    usersLnTF.setText("");
-    usersEmailTF.setText("");
-    roleBG.clearSelection(); // Deselects any selected radio button in the ToggleGroup
-    }*/
-    
-    public void refreshUsersTBL(){
+
+    private void resetEventsForm() {
+        // Clear text fields
+        eventsNameTF.setText("");
+
+        // Reset date chooser
+        eventsDC.setDate(null);
+
+        // Reset combo boxes
+        eventsLocationCB.setSelectedIndex(-1); // or 0 if you want the first item selected
+        eventsStartCB.setSelectedIndex(-1);    // or 0
+        eventsEndCB.setSelectedIndex(-1);      // or 0
+
+        // Clear the text pane
+        eventsDescriptionTP.setText("");
+    }
+
+    public void refreshUsersTBL() {
         DefaultTableModel model = (DefaultTableModel) usersTBL.getModel();
         model.setRowCount(0);
-        
-        for(User user : userDAOImpl.getAllUsers()){
+
+        for (User user : userDAOImpl.getAllUsers()) {
             model.addRow(new Object[]{
                 user.getUserId(),
                 user.getUsername(),
                 user.getLastname() + ", " + user.getFirstname(),
+                user.getGender(),
                 user.getRole(),
                 user.getEmail(),
                 user.getCreated_at(),
@@ -67,138 +87,188 @@ public class AdminGUI extends javax.swing.JFrame {
             });
         }
     }
-        
+
     public void refreshStudentsTBL() {
-    DefaultTableModel model = (DefaultTableModel) studentsTBL.getModel();
-    model.setRowCount(0); // clear previous data
+        DefaultTableModel model = (DefaultTableModel) studentsTBL.getModel();
+        model.setRowCount(0); // clear previous data
 
-    List<Student> students = studentDAOImpl.read_all();
-    List<User> users = userDAOImpl.getAllUsers();
+        List<Student> students = studentDAOImpl.read_all();
+        List<User> users = userDAOImpl.getAllUsers();
 
-    // Build a lookup map for faster user access by user_id
-    Map<Integer, User> userMap = new HashMap<>();
-    for (User user : users) {
-        userMap.put(user.getUserId(), user);
-    }
+        // Build a lookup map for faster user access by user_id
+        Map<Integer, User> userMap = new HashMap<>();
+        for (User user : users) {
+            userMap.put(user.getUserId(), user);
+        }
 
-    for (Student student : students) {
-        User user = userMap.get(student.getUser_id());
+        for (Student student : students) {
+            User user = userMap.get(student.getUser_id());
 
-        if (user != null) {
-            String fullName = user.getLastname() + ", " + user.getFirstname();
-            String gradeAndSection = student.getGradeLevel() + " - " + student.getSection();
+            if (user != null) {
+                String fullName = user.getLastname() + ", " + user.getFirstname();
+                String gradeAndSection = student.getGradeLevel() + " - " + student.getSection();
 
-            model.addRow(new Object[]{
-                user.getUserId(),
-                user.getUsername(),
-                student.getLrn(),
-                fullName,
-                gradeAndSection,
-                user.getRole(),
-                user.getEmail(),
-                user.getIsActive().equals("1") ? "Active" : "Inactive"
-            });
-        } else {
-            System.err.println("No user found for student with user_id = " + student.getUser_id());
+                model.addRow(new Object[]{
+                    user.getUserId(),
+                    user.getUsername(),
+                    student.getLrn(),
+                    fullName,
+                    user.getGender(),
+                    gradeAndSection,
+                    user.getRole(),
+                    user.getEmail(),
+                    user.getIsActive()
+                });
+            } else {
+                System.err.println("No user found for student with user_id = " + student.getUser_id());
+            }
         }
     }
-}   
-    
+
     public void refreshTeachersTBL() {
-    DefaultTableModel model = (DefaultTableModel) teachersTBL.getModel(); // ✅ correct table
-    model.setRowCount(0); // Clear previous rows
+        DefaultTableModel model = (DefaultTableModel) teachersTBL.getModel(); // ✅ correct table
+        model.setRowCount(0); // Clear previous rows
 
-    List<Teacher> teachers = teacherDAOImpl.getAllTeachers();
-    List<User> users = userDAOImpl.getAllUsers();
+        List<Teacher> teachers = teacherDAOImpl.getAllTeachers();
+        List<User> users = userDAOImpl.getAllUsers();
 
-    if (teachers == null || users == null) {
-        JOptionPane.showMessageDialog(this, "Failed to load teachers or users.");
-        return;
-    }
-
-    // Fast lookup for users by user_id
-    Map<Integer, User> userMap = new HashMap<>();
-    for (User user : users) {
-        userMap.put(user.getUserId(), user);
-    }
-
-    for (Teacher teacher : teachers) {
-        User user = userMap.get(teacher.getUserId());
-
-        if (user != null) {
-            String fullName = user.getLastname() + ", " + user.getFirstname();
-
-            model.addRow(new Object[]{
-                user.getUserId(),
-                user.getUsername(),
-                fullName,
-                teacher.getAdvisoryClass(),
-                user.getRole(),
-                user.getEmail(),
-                "1".equals(user.getIsActive()) ? "Active" : "Inactive"
-            });
-        } else {
-            System.err.println("No user found for teacher with user_id = " + teacher.getUserId());
+        if (teachers == null || users == null) {
+            JOptionPane.showMessageDialog(this, "Failed to load teachers or users.");
+            return;
         }
-    }
-}
 
-    public void refreshClassesTBL() {
-    DefaultTableModel model = (DefaultTableModel) classesTBL.getModel(); // ✅ your actual classes JTable
-    model.setRowCount(0); // Clear old data
+        // Fast lookup for users by user_id
+        Map<Integer, User> userMap = new HashMap<>();
+        for (User user : users) {
+            userMap.put(user.getUserId(), user);
+        }
 
-    List<Classes> classList = classesDAOImpl.read_all();
-    List<Teacher> teachers = teacherDAOImpl.getAllTeachers();
-    List<User> users = userDAOImpl.getAllUsers();
-
-    if (classList == null || teachers == null || users == null) {
-        JOptionPane.showMessageDialog(this, "Failed to load data for classes, teachers, or users.");
-        return;
-    }
-
-    // Fast lookup maps
-    Map<Integer, Teacher> teacherMap = new HashMap<>();
-    for (Teacher teacher : teachers) {
-        teacherMap.put(teacher.getTeacherId(), teacher);
-    }
-
-    Map<Integer, User> userMap = new HashMap<>();
-    for (User user : users) {
-        userMap.put(user.getUserId(), user);
-    }
-
-    for (Classes cls : classList) {
-        Teacher teacher = teacherMap.get(cls.getAdviser_id());
-        if (teacher != null) {
+        for (Teacher teacher : teachers) {
             User user = userMap.get(teacher.getUserId());
 
             if (user != null) {
                 String fullName = user.getLastname() + ", " + user.getFirstname();
-                String gradeSection = "Grade " + cls.getGrade() + " - " + cls.getSection();
 
                 model.addRow(new Object[]{
-                    cls.getClass_id(),
+                    user.getUserId(),
+                    user.getUsername(),
                     fullName,
-                    gradeSection,
-                    cls.getCreated_at(),
-                    cls.getUpdated_at()
+                    user.getGender(),
+                    teacher.getAdvisoryClass(),
+                    user.getRole(),
+                    user.getEmail(),
+                    user.getIsActive()
                 });
             } else {
-                System.err.println("⚠️ No user found for teacher.user_id = " + teacher.getUserId());
+                System.err.println("No user found for teacher with user_id = " + teacher.getUserId());
             }
-        } else {
-            System.err.println("⚠️ No teacher found for class.adviser_id = " + cls.getAdviser_id());
         }
     }
-}
 
-    public void refreshTables(){
+    public void refreshClassesTBL() {
+        DefaultTableModel model = (DefaultTableModel) classesTBL.getModel(); // ✅ your actual classes JTable
+        model.setRowCount(0); // Clear old data
+
+        List<Classes> classList = classesDAOImpl.read_all();
+        List<Teacher> teachers = teacherDAOImpl.getAllTeachers();
+        List<User> users = userDAOImpl.getAllUsers();
+
+        if (classList == null || teachers == null || users == null) {
+            JOptionPane.showMessageDialog(this, "Failed to load data for classes, teachers, or users.");
+            return;
+        }
+
+        // Fast lookup maps
+        Map<Integer, Teacher> teacherMap = new HashMap<>();
+        for (Teacher teacher : teachers) {
+            teacherMap.put(teacher.getTeacherId(), teacher);
+        }
+
+        Map<Integer, User> userMap = new HashMap<>();
+        for (User user : users) {
+            userMap.put(user.getUserId(), user);
+        }
+
+        for (Classes cls : classList) {
+            Teacher teacher = teacherMap.get(cls.getAdviser_id());
+            if (teacher != null) {
+                User user = userMap.get(teacher.getUserId());
+
+                if (user != null) {
+                    String fullName = user.getLastname() + ", " + user.getFirstname();
+                    String gradeSection = "Grade " + cls.getGrade() + " - " + cls.getSection();
+
+                    model.addRow(new Object[]{
+                        cls.getClass_id(),
+                        fullName,
+                        gradeSection,
+                        cls.getCreated_at(),
+                        cls.getUpdated_at()
+                    });
+                } else {
+                    System.err.println("⚠️ No user found for teacher.user_id = " + teacher.getUserId());
+                }
+            } else {
+                System.err.println("⚠️ No teacher found for class.adviser_id = " + cls.getAdviser_id());
+            }
+        }
+    }
+
+    public void refreshEventsTBL() {
+        // Clear existing rows
+        DefaultTableModel model = (DefaultTableModel) eventsTBL.getModel();
+        model.setRowCount(0);
+
+        // Fetch all events from the database
+        List<Event> events = eventDAOImpl.readAllEvents();
+
+        if (events == null) {
+            JOptionPane.showMessageDialog(this, "Failed to load events from the database.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Formatter for time
+        SimpleDateFormat inputFormat = new SimpleDateFormat("HH:mm:ss");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("hh:mm a");
+
+        // Populate table with each event
+        for (Event e : events) {
+            String formattedStart = e.getStartTime();
+            String formattedEnd = e.getEndTime();
+
+            try {
+                Date start = inputFormat.parse(e.getStartTime());
+                formattedStart = outputFormat.format(start);
+
+                Date end = inputFormat.parse(e.getEndTime());
+                formattedEnd = outputFormat.format(end);
+            } catch (Exception ex) {
+                ex.printStackTrace(); // fallback: use original if parsing fails
+            }
+
+            Object[] rowData = {
+                e.getEventId(),
+                e.getEventName(),
+                e.getDescription(),
+                e.getDate(),
+                e.getVenue(),
+                formattedStart,
+                formattedEnd,
+                eventDAOImpl.determineStatus(e.getDate(), e.getEndTime()),
+                e.getCreated_at(),
+                e.getUpdated_at()
+            };
+            model.addRow(rowData);
+        }
+    }
+
+    public void refreshTables() {
         refreshUsersTBL();
         refreshStudentsTBL();
         refreshTeachersTBL();
         refreshClassesTBL();
+        refreshEventsTBL();
     }
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -219,10 +289,19 @@ public class AdminGUI extends javax.swing.JFrame {
         teachersPUM = new javax.swing.JPopupMenu();
         teachersEditMI = new javax.swing.JMenuItem();
         teachersDeleteMI = new javax.swing.JMenuItem();
+        eventsPUM = new javax.swing.JPopupMenu();
+        eventsEditMI = new javax.swing.JMenuItem();
+        eventsDeleteMI = new javax.swing.JMenuItem();
+        classesPUM = new javax.swing.JPopupMenu();
+        classesEditMI = new javax.swing.JMenuItem();
+        classesDeleteMI = new javax.swing.JMenuItem();
+        classesViewStudents = new javax.swing.JMenuItem();
+        genderBG = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel9 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
+        greetLBL = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jPanel11 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -252,6 +331,9 @@ public class AdminGUI extends javax.swing.JFrame {
         usersEmailTF = new javax.swing.JTextField();
         usersPasswordTF = new javax.swing.JPasswordField();
         showCB = new javax.swing.JCheckBox();
+        jLabel13 = new javax.swing.JLabel();
+        maleRB = new javax.swing.JRadioButton();
+        femaleRB = new javax.swing.JRadioButton();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         studentsTBL = new javax.swing.JTable();
@@ -261,6 +343,7 @@ public class AdminGUI extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jComboBox8 = new javax.swing.JComboBox<>();
+        jLabel14 = new javax.swing.JLabel();
         jScrollBar2 = new javax.swing.JScrollBar();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -302,7 +385,7 @@ public class AdminGUI extends javax.swing.JFrame {
         jLabel36 = new javax.swing.JLabel();
         jLabel37 = new javax.swing.JLabel();
         jLabel38 = new javax.swing.JLabel();
-        eventNameTF = new javax.swing.JTextField();
+        eventsNameTF = new javax.swing.JTextField();
         eventsSaveBTN = new javax.swing.JButton();
         eventsDiscardBTN = new javax.swing.JButton();
         jLabel40 = new javax.swing.JLabel();
@@ -310,13 +393,17 @@ public class AdminGUI extends javax.swing.JFrame {
         eventsEndCB = new javax.swing.JComboBox<>();
         eventsLocationCB = new javax.swing.JComboBox<>();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
+        eventsDescriptionTP = new javax.swing.JTextPane();
         jLabel39 = new javax.swing.JLabel();
+        eventsDC = new com.toedter.calendar.JDateChooser();
         jPanel8 = new javax.swing.JPanel();
         jPanel17 = new javax.swing.JPanel();
         jComboBox6 = new javax.swing.JComboBox<>();
         jComboBox7 = new javax.swing.JComboBox<>();
         jComboBox10 = new javax.swing.JComboBox<>();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
         jPanel18 = new javax.swing.JPanel();
         jTextField9 = new javax.swing.JTextField();
         jButton5 = new javax.swing.JButton();
@@ -324,7 +411,7 @@ public class AdminGUI extends javax.swing.JFrame {
         attendanceTBL = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        logOutMI = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
 
@@ -350,19 +437,46 @@ public class AdminGUI extends javax.swing.JFrame {
         teachersDeleteMI.setText("Delete");
         teachersPUM.add(teachersDeleteMI);
 
+        eventsEditMI.setText("Edit");
+        eventsPUM.add(eventsEditMI);
+
+        eventsDeleteMI.setText("Delete");
+        eventsPUM.add(eventsDeleteMI);
+
+        classesEditMI.setText("Edit");
+        classesPUM.add(classesEditMI);
+
+        classesDeleteMI.setText("Delete");
+        classesPUM.add(classesDeleteMI);
+
+        classesViewStudents.setText("View Students");
+        classesPUM.add(classesViewStudents);
+
+        genderBG.add(maleRB);
+        genderBG.add(femaleRB);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.LEFT);
+
+        greetLBL.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        greetLBL.setText("Welcome to EAM-System Admin user");
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 2393, Short.MAX_VALUE)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(353, 353, 353)
+                .addComponent(greetLBL)
+                .addContainerGap(1613, Short.MAX_VALUE))
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 632, Short.MAX_VALUE)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(240, 240, 240)
+                .addComponent(greetLBL, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(302, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
@@ -387,7 +501,7 @@ public class AdminGUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "User ID", "Username", "Name", "Role", "Email", "Created At", "Updated At", "Status"
+                "User ID", "Username", "Name", "Gender", "Role", "Email", "Created At", "Updated At", "Status"
             }
         ));
         usersTBL.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -495,7 +609,7 @@ public class AdminGUI extends javax.swing.JFrame {
         jLabel4.setText("Lastname:");
 
         jLabel5.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
-        jLabel5.setText("Email:");
+        jLabel5.setText("Gender:");
 
         jLabel6.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
         jLabel6.setText("Role:");
@@ -543,6 +657,13 @@ public class AdminGUI extends javax.swing.JFrame {
             }
         });
 
+        jLabel13.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
+        jLabel13.setText("Email:");
+
+        maleRB.setText("Male");
+
+        femaleRB.setText("Female");
+
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
@@ -550,40 +671,41 @@ public class AdminGUI extends javax.swing.JFrame {
             .addGroup(jPanel14Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel14Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addGap(55, 55, 55)
-                        .addComponent(adminRB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(teacherRB)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(studentRB))
                     .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(showCB, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(jPanel14Layout.createSequentialGroup()
-                            .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel14Layout.createSequentialGroup()
+                            .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel2)
-                                        .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel5)
-                                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)))
-                                    .addGap(19, 19, 19))
+                                        .addComponent(jLabel4)
+                                        .addComponent(jLabel3))
+                                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING))
+                                .addComponent(jLabel13, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addGap(18, 18, 18)
+                            .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(usersUsernameTF)
+                                .addComponent(usersLnTF)
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
-                                    .addComponent(jLabel3)
-                                    .addGap(18, 18, 18)))
-                            .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(usersUsernameTF)
-                                    .addComponent(usersLnTF)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
-                                        .addComponent(usersSaveBTN, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(usersDiscardBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(usersPasswordTF))
+                                    .addComponent(usersSaveBTN, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(usersDiscardBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(usersPasswordTF)
                                 .addComponent(usersEmailTF, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(usersFnTF, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(usersFnTF, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel14Layout.createSequentialGroup()
+                                    .addComponent(maleRB)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(femaleRB))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                                    .addComponent(adminRB)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(teacherRB)
+                                    .addGap(4, 4, 4)
+                                    .addComponent(studentRB)
+                                    .addGap(10, 10, 10)))))
+                    .addComponent(jLabel5))
                 .addContainerGap(23, Short.MAX_VALUE))
         );
         jPanel14Layout.setVerticalGroup(
@@ -610,18 +732,23 @@ public class AdminGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(usersEmailTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(maleRB)
+                    .addComponent(femaleRB))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(teacherRB)
-                    .addComponent(studentRB)
-                    .addComponent(adminRB)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
+                    .addComponent(usersEmailTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usersDiscardBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(usersSaveBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(37, 37, 37))
+                    .addComponent(jLabel6)
+                    .addComponent(studentRB)
+                    .addComponent(teacherRB)
+                    .addComponent(adminRB))
+                .addGap(27, 27, 27)
+                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(usersSaveBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usersDiscardBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(59, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -653,13 +780,13 @@ public class AdminGUI extends javax.swing.JFrame {
 
         studentsTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "User ID", "Username", "LRN", "Name", "Grade & Section", "Role", "Email", "Status"
+                "User ID", "Username", "LRN", "Name", "Gender", "Grade & Section", "Role", "Email", "Status"
             }
         ));
         studentsTBL.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -703,6 +830,8 @@ public class AdminGUI extends javax.swing.JFrame {
         jComboBox8.setBackground(new java.awt.Color(204, 204, 204));
         jComboBox8.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "11-ABM", "11-HE1", "11-HE2A", "11-HE2B", "11-HUMMS", "11-ICT", "11-STEM", "12-ABM", "12-HE1", "12-HE2A", "12-HE2B", "12-HUMMS", "12-ICT", "12-STEM" }));
 
+        jLabel14.setText("Grade & Section:");
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -710,7 +839,9 @@ public class AdminGUI extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 566, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 511, Short.MAX_VALUE)
+                .addComponent(jLabel14)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jComboBox8, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel4Layout.setVerticalGroup(
@@ -719,7 +850,8 @@ public class AdminGUI extends javax.swing.JFrame {
                 .addGap(0, 23, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jComboBox8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jComboBox8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14)))
         );
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
@@ -737,7 +869,7 @@ public class AdminGUI extends javax.swing.JFrame {
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel26, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(1193, Short.MAX_VALUE))
+                .addContainerGap(1148, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -758,13 +890,13 @@ public class AdminGUI extends javax.swing.JFrame {
 
         teachersTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "User ID", "Username", "Name", "Advisory", "Role", "Email", "Status"
+                "User ID", "Username", "Name", "Gender", "Advisory", "Role", "Email", "Status"
             }
         ));
         teachersTBL.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -881,7 +1013,7 @@ public class AdminGUI extends javax.swing.JFrame {
         jPanel28.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
         jLabel9.setFont(new java.awt.Font("Serif", 1, 12)); // NOI18N
-        jLabel9.setText("Teachers List");
+        jLabel9.setText("Class List");
 
         classesSortCB.setBackground(new java.awt.Color(204, 204, 204));
         classesSortCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "11-ABM", "11-HE1", "11-HE2A", "11-HE2B", "11-HUMMS", "11-ICT", "11-STEM", "12-ABM", " 12-HE1", " 12-HE2A", " 12-HE2B", "12-HUMMS", " 12-ICT", " 12-STEM" }));
@@ -891,21 +1023,20 @@ public class AdminGUI extends javax.swing.JFrame {
         jPanel28Layout.setHorizontalGroup(
             jPanel28Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel28Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(15, 15, 15)
                 .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 512, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 503, Short.MAX_VALUE)
                 .addComponent(classesSortCB, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel28Layout.setVerticalGroup(
             jPanel28Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel28Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel9))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel28Layout.createSequentialGroup()
-                .addContainerGap(32, Short.MAX_VALUE)
-                .addComponent(classesSortCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addGroup(jPanel28Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel28Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(classesSortCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         teachersTBL1.setModel(new javax.swing.table.DefaultTableModel(
@@ -986,6 +1117,11 @@ public class AdminGUI extends javax.swing.JFrame {
                 "Class ID", "Adviser", "Grade & Section", "Created_at", "Updated_at"
             }
         ));
+        classesTBL.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                classesTBLMouseReleased(evt);
+            }
+        });
         jScrollPane8.setViewportView(classesTBL);
 
         javax.swing.GroupLayout jPanel19Layout = new javax.swing.GroupLayout(jPanel19);
@@ -1020,19 +1156,21 @@ public class AdminGUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Event Name", "Date", "Location", "Start", "End", "Status"
+                "Event ID", "Event Name", "Description", "Date", "Location", "Start", "End", "Status", "Created at", "Updated at"
             }
         ));
+        eventsTBL.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                eventsTBLMouseReleased(evt);
+            }
+        });
         jScrollPane4.setViewportView(eventsTBL);
-        if (eventsTBL.getColumnModel().getColumnCount() > 0) {
-            eventsTBL.getColumnModel().getColumn(5).setHeaderValue("Status");
-        }
 
         jPanel15.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
         jComboBox3.setBackground(new java.awt.Color(204, 204, 204));
         jComboBox3.setFont(new java.awt.Font("Serif", 0, 12)); // NOI18N
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Upcoming", "Ongoing", "Concluded" }));
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Upcoming", "Ongoing", "Finished" }));
         jComboBox3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox3ActionPerformed(evt);
@@ -1135,6 +1273,11 @@ public class AdminGUI extends javax.swing.JFrame {
         eventsSaveBTN.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         eventsSaveBTN.setText("Save Event");
         eventsSaveBTN.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, new java.awt.Color(204, 204, 204), null, null));
+        eventsSaveBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eventsSaveBTNActionPerformed(evt);
+            }
+        });
 
         eventsDiscardBTN.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         eventsDiscardBTN.setText("Discard");
@@ -1148,9 +1291,16 @@ public class AdminGUI extends javax.swing.JFrame {
         jLabel40.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
         jLabel40.setText("Start:");
 
-        eventsLocationCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SANHS", "GYM" }));
+        eventsStartCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "12:00 AM", "12:30 AM", "1:00 AM", "1:30 AM", "2:00 AM", "2:30 AM", "3:00 AM", "3:30 AM", "4:00 AM", "4:30 AM", "5:00 AM", "5:30 AM", "6:00 AM", "6:30 AM", "7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM", "9:00 PM", "9:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM" }));
+        eventsStartCB.setSelectedIndex(-1);
 
-        jScrollPane3.setViewportView(jTextPane1);
+        eventsEndCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "12:00 AM", "12:30 AM", "1:00 AM", "1:30 AM", "2:00 AM", "2:30 AM", "3:00 AM", "3:30 AM", "4:00 AM", "4:30 AM", "5:00 AM", "5:30 AM", "6:00 AM", "6:30 AM", "7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM", "9:00 PM", "9:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM" }));
+        eventsEndCB.setSelectedIndex(-1);
+
+        eventsLocationCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SANHS Activity Center", "Sagbayan Municipal Gymnasium", "Sagbayan Cultural Center" }));
+        eventsLocationCB.setSelectedIndex(-1);
+
+        jScrollPane3.setViewportView(eventsDescriptionTP);
 
         jLabel39.setFont(new java.awt.Font("Serif", 1, 14)); // NOI18N
         jLabel39.setText("Description:");
@@ -1180,13 +1330,14 @@ public class AdminGUI extends javax.swing.JFrame {
                         .addGap(26, 26, 26)
                         .addGroup(jPanel25Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(eventNameTF)
-                            .addComponent(eventsLocationCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(eventsNameTF)
+                            .addComponent(eventsLocationCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(eventsDC, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanel25Layout.createSequentialGroup()
-                        .addGap(57, 57, 57)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel40)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(eventsStartCB, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(eventsStartCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel37)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1199,9 +1350,11 @@ public class AdminGUI extends javax.swing.JFrame {
                 .addGap(27, 27, 27)
                 .addGroup(jPanel25Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel33)
-                    .addComponent(eventNameTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(eventsNameTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel34)
+                .addGroup(jPanel25Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel34)
+                    .addComponent(eventsDC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel25Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel36)
@@ -1269,16 +1422,28 @@ public class AdminGUI extends javax.swing.JFrame {
         jComboBox7.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "11-ABM", "11-HE1", "11-HE2A", "11-HE2B", "11-HUMMS", "11-ICT", "11-STEM", "12-ABM", "12-HE1", "12-HE2A", "12-HE2B", "12-HUMMS", "12-ICT", "12-STEM" }));
 
         jComboBox10.setBackground(new java.awt.Color(204, 204, 204));
-        jComboBox10.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox10.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All" }));
+
+        jLabel10.setText("Event:");
+
+        jLabel11.setText("Grade & Section:");
+
+        jLabel12.setText("Status:");
 
         javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
         jPanel17.setLayout(jPanel17Layout);
         jPanel17Layout.setHorizontalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel17Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
+                .addGap(31, 31, 31)
+                .addComponent(jLabel10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jComboBox10, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 550, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 401, Short.MAX_VALUE)
+                .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jComboBox6, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jComboBox7, 0, 148, Short.MAX_VALUE))
@@ -1290,12 +1455,18 @@ public class AdminGUI extends javax.swing.JFrame {
                 .addContainerGap(9, Short.MAX_VALUE)
                 .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel17Layout.createSequentialGroup()
-                        .addComponent(jComboBox7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jComboBox7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel11))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel12))
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel17Layout.createSequentialGroup()
-                        .addComponent(jComboBox10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jComboBox10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel10))
                         .addGap(19, 19, 19))))
         );
 
@@ -1331,20 +1502,10 @@ public class AdminGUI extends javax.swing.JFrame {
 
         attendanceTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null}
+
             },
             new String [] {
-                "Recorded ID", "Event ID", "Event", "Student ID", "Student", "Grade&Section", "Date", "Check_in_time", "Check_out_time", "status", "synced"
+                "Record ID", "Event ID", "Event", "Student ID", "Student", "Grade & Section", "Date", "Check_in_time", "Check_out_time", "Remark"
             }
         ));
         jScrollPane2.setViewportView(attendanceTBL);
@@ -1371,8 +1532,13 @@ public class AdminGUI extends javax.swing.JFrame {
 
         jMenu1.setText("Settings");
 
-        jMenuItem1.setText("Log Out");
-        jMenu1.add(jMenuItem1);
+        logOutMI.setText("Log Out");
+        logOutMI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logOutMIActionPerformed(evt);
+            }
+        });
+        jMenu1.add(logOutMI);
 
         jMenuBar1.add(jMenu1);
 
@@ -1486,8 +1652,16 @@ public class AdminGUI extends javax.swing.JFrame {
         String firstname = usersFnTF.getText().trim();
         String lastname = usersLnTF.getText().trim();
         String email = usersEmailTF.getText().trim();
+        String gender = null;
         String role = null;
-
+        
+        //Determine gender
+        if(maleRB.isSelected()){
+            gender = "Male";
+        }else if(femaleRB.isSelected()){
+            gender = "Female";
+        }
+        
         // Determine role
         if (adminRB.isSelected()) {
             role = "Admin";
@@ -1499,7 +1673,7 @@ public class AdminGUI extends javax.swing.JFrame {
 
         // Validate inputs
         if (username.isEmpty() || rawPassword.isEmpty() || firstname.isEmpty()
-            || lastname.isEmpty() || email.isEmpty() || role == null) {
+                || lastname.isEmpty() || email.isEmpty() || role == null) {
 
             JOptionPane.showMessageDialog(this, "Fill out all the fields in the form.");
             return;
@@ -1508,8 +1682,8 @@ public class AdminGUI extends javax.swing.JFrame {
         // Check if username already exists
         if (userDAOImpl.getUserByUsername(username) != null) {
             JOptionPane.showMessageDialog(this,
-                "Username already exists. User not added.",
-                "Error", JOptionPane.ERROR_MESSAGE);
+                    "Username already exists. User not added.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -1517,15 +1691,15 @@ public class AdminGUI extends javax.swing.JFrame {
         String password = HashUtil.sha256(rawPassword);
 
         // Create user object
-        User newUser = new User(0, username, password, role, firstname, lastname, email, "Inactive", "", "");
+        User newUser = new User(0, username, password, role, firstname, lastname, gender, email, "Inactive", "", "");
 
         // Insert user into database
         Integer userId = userDAOImpl.addUser(newUser);
 
         if (userId == null) {
             JOptionPane.showMessageDialog(this,
-                "An error occurred. User not added.",
-                "Error", JOptionPane.ERROR_MESSAGE);
+                    "An error occurred. User not added.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -1534,8 +1708,8 @@ public class AdminGUI extends javax.swing.JFrame {
         this.user = newUser;
 
         JOptionPane.showMessageDialog(this,
-            "User Successfully Added", "Notification",
-            JOptionPane.INFORMATION_MESSAGE);
+                "User Successfully Added", "Notification",
+                JOptionPane.INFORMATION_MESSAGE);
 
         // Open dialog based on role
         if ("Teacher".equals(role)) {
@@ -1581,8 +1755,120 @@ public class AdminGUI extends javax.swing.JFrame {
 
     private void eventsDiscardBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eventsDiscardBTNActionPerformed
         // TODO add your handling code here:
-        
+        resetEventsForm();
     }//GEN-LAST:event_eventsDiscardBTNActionPerformed
+
+    private void eventsSaveBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eventsSaveBTNActionPerformed
+        // TODO add your handling code here:
+        // Retrieve values from form fields
+        String eventName = eventsNameTF.getText().trim();
+        Date selectedDate = eventsDC.getDate();
+        String startTime12Hr = (String) eventsStartCB.getSelectedItem();
+        String endTime12Hr = (String) eventsEndCB.getSelectedItem();
+        String venue = (String) eventsLocationCB.getSelectedItem();
+        String description = eventsDescriptionTP.getText().trim();
+
+        // Validate required fields
+        if (eventName.isEmpty() || selectedDate == null || startTime12Hr == null || endTime12Hr == null
+                || venue == null || description.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please complete all fields.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Format date to "yyyy-MM-dd"
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String date = dateFormat.format(selectedDate);
+
+        // Convert time from 12-hour (e.g., "7:00 AM") to 24-hour format (e.g., "07:00:00")
+        SimpleDateFormat inputTimeFormat = new SimpleDateFormat("hh:mm a");
+        SimpleDateFormat outputTimeFormat = new SimpleDateFormat("HH:mm:ss");
+
+        String startTime24Hr, endTime24Hr;
+
+        try {
+            Date startTimeParsed = inputTimeFormat.parse(startTime12Hr);
+            Date endTimeParsed = inputTimeFormat.parse(endTime12Hr);
+
+            // Validate that start time is before end time
+            if (!startTimeParsed.before(endTimeParsed)) {
+                JOptionPane.showMessageDialog(this, "Start time must be before end time.", "Time Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Convert to 24-hour format
+            startTime24Hr = outputTimeFormat.format(startTimeParsed);
+            endTime24Hr = outputTimeFormat.format(endTimeParsed);
+
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(this, "Invalid time format.", "Parse Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Create new Event object (eventId = 0 for new entries)
+        Event event = new Event(0, eventName, date, startTime24Hr, endTime24Hr, venue, description, "", "");
+
+        // Save the event via DAO
+        boolean isCreated = eventDAOImpl.createEvent(event);
+
+        if (isCreated) {
+            JOptionPane.showMessageDialog(this, "Event created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            resetEventsForm();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to create event.", "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        refreshEventsTBL();
+        resetEventsForm();
+    }//GEN-LAST:event_eventsSaveBTNActionPerformed
+
+    private void classesTBLMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_classesTBLMouseReleased
+        // TODO add your handling code here:
+        if (evt.isPopupTrigger()) {
+            int row = classesTBL.rowAtPoint(evt.getPoint());
+
+            if (row >= 0) {
+                classesTBL.setRowSelectionInterval(row, row);
+            }
+
+            classesPUM.show(classesTBL, evt.getX(), evt.getY());
+        } else {
+            System.out.println("Nothing happened!");
+        }
+    }//GEN-LAST:event_classesTBLMouseReleased
+
+    private void eventsTBLMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eventsTBLMouseReleased
+        // TODO add your handling code here:
+        if (evt.isPopupTrigger()) {
+            int row = eventsTBL.rowAtPoint(evt.getPoint());
+
+            if (row >= 0) {
+                eventsTBL.setRowSelectionInterval(row, row);
+            }
+
+            eventsPUM.show(eventsTBL, evt.getX(), evt.getY());
+        } else {
+            System.out.println("Nothing happened!");
+        }
+    }//GEN-LAST:event_eventsTBLMouseReleased
+
+    private void logOutMIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logOutMIActionPerformed
+        // TODO add your handling code here:
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure to log out from EAM System?",
+                "Confirmation",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (option == JOptionPane.YES_OPTION) {
+            LoginGUI loginGUI = new LoginGUI();
+            loginGUI.setVisible(true);
+            this.dispose();
+        } else {
+            // User clicked "No" — do nothing
+        }
+
+    }//GEN-LAST:event_logOutMIActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1614,7 +1900,6 @@ public class AdminGUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AdminGUI().setVisible(true);
             }
         });
     }
@@ -1622,17 +1907,29 @@ public class AdminGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton adminRB;
     private javax.swing.JTable attendanceTBL;
+    private javax.swing.JMenuItem classesDeleteMI;
+    private javax.swing.JMenuItem classesEditMI;
+    private javax.swing.JPopupMenu classesPUM;
     private javax.swing.JButton classesSearchBTN;
     private javax.swing.JTextField classesSearchTF;
     private javax.swing.JComboBox<String> classesSortCB;
     private javax.swing.JTable classesTBL;
-    private javax.swing.JTextField eventNameTF;
+    private javax.swing.JMenuItem classesViewStudents;
+    private com.toedter.calendar.JDateChooser eventsDC;
+    private javax.swing.JMenuItem eventsDeleteMI;
+    private javax.swing.JTextPane eventsDescriptionTP;
     private javax.swing.JButton eventsDiscardBTN;
+    private javax.swing.JMenuItem eventsEditMI;
     private javax.swing.JComboBox<String> eventsEndCB;
     private javax.swing.JComboBox<String> eventsLocationCB;
+    private javax.swing.JTextField eventsNameTF;
+    private javax.swing.JPopupMenu eventsPUM;
     private javax.swing.JButton eventsSaveBTN;
     private javax.swing.JComboBox<String> eventsStartCB;
     private javax.swing.JTable eventsTBL;
+    private javax.swing.JRadioButton femaleRB;
+    private javax.swing.ButtonGroup genderBG;
+    private javax.swing.JLabel greetLBL;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton5;
@@ -1644,6 +1941,11 @@ public class AdminGUI extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jComboBox7;
     private javax.swing.JComboBox<String> jComboBox8;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -1663,7 +1965,6 @@ public class AdminGUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
@@ -1710,7 +2011,8 @@ public class AdminGUI extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField8;
     private javax.swing.JTextField jTextField9;
-    private javax.swing.JTextPane jTextPane1;
+    private javax.swing.JMenuItem logOutMI;
+    private javax.swing.JRadioButton maleRB;
     private javax.swing.ButtonGroup roleBG;
     private javax.swing.JButton searchBTN;
     private javax.swing.JCheckBox showCB;

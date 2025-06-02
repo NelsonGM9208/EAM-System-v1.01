@@ -15,17 +15,15 @@ public class Attendance {
     private int studentId;
     private String check_in_time;
     private String check_out_time;
-    private String status;
-    private boolean synced;
+    private String remark;
 
-    public Attendance(int recordId, int eventId, int studentId, String check_in_time, String check_out_time, String status, boolean synced) {
+    public Attendance(int recordId, int eventId, int studentId, String check_in_time, String check_out_time, String remark) {
         this.recordId = recordId;
         this.eventId = eventId;
         this.studentId = studentId;
         this.check_in_time = check_in_time;
         this.check_out_time = check_out_time;
-        this.status = status;
-        this.synced = synced;
+        this.remark = remark;
     }
 
     public int getRecordId() {
@@ -48,12 +46,8 @@ public class Attendance {
         return check_out_time;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public boolean getSynced() {
-        return synced;
+    public String getRemark() {
+        return remark;
     }
 
     public void setRecordId(int recordId) {
@@ -76,12 +70,7 @@ public class Attendance {
         this.check_out_time = check_out_time;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
-
-    public void setSynced(Boolean synced) {
-        this.synced = synced;
-    }
-
 }

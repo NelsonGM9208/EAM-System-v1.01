@@ -30,7 +30,7 @@ public class Authentication {
 
             if (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), 
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"),
                         rs.getString("email"), rs.getString("is_active"), "", "");              
             }
             return user;

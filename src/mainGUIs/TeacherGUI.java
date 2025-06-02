@@ -4,17 +4,128 @@
  */
 package mainGUIs;
 
+import database.DBConnection;
+import implementations.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import models.*;
+import java.sql.*;
+
 /**
  *
  * @author NelsonJrLHerrera
  */
 public class TeacherGUI extends javax.swing.JFrame {
+    AttendanceDAOImpl attendanceDAOImpl = new AttendanceDAOImpl();
+    TeacherDAOImpl teacherDAOImpl = new TeacherDAOImpl();
+    ClassesDAOImpl classesDAOImpl = new ClassesDAOImpl();
+    EventDAOImpl eventDAOImpl = new EventDAOImpl();
+    private final User user;
+    List<Classes> classList;
 
     /**
      * Creates new form TeacherGUI
      */
-    public TeacherGUI() {
+    public TeacherGUI(User user) {
+        this.user = user;
         initComponents();
+        greetUser();
+        refreshTables();
+    }
+
+    public void greetUser() {
+        greetLBL.setText("Welcome to EAM-System Teacher " + this.user.getFirstname());
+    }
+
+    public void refreshEventsTBL() {
+        // Clear existing rows
+        DefaultTableModel model = (DefaultTableModel) eventsTBL.getModel();
+        model.setRowCount(0);
+
+        // Fetch all events from the database
+        List<Event> events = eventDAOImpl.readAllEvents();
+
+        if (events == null) {
+            JOptionPane.showMessageDialog(this, "Failed to load events from the database.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Format helper
+        SimpleDateFormat inputFormat = new SimpleDateFormat("HH:mm:ss");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("hh:mm a");
+
+        // Populate table with each event
+        for (Event e : events) {
+            String formattedStart = e.getStartTime();
+            String formattedEnd = e.getEndTime();
+
+            try {
+                Date start = inputFormat.parse(e.getStartTime());
+                formattedStart = outputFormat.format(start);
+
+                Date end = inputFormat.parse(e.getEndTime());
+                formattedEnd = outputFormat.format(end);
+            } catch (Exception ex) {
+                ex.printStackTrace(); // fallback: use original time values
+            }
+
+            Object[] rowData = {
+                e.getEventId(),
+                e.getEventName(),
+                e.getDescription(),
+                e.getVenue(),
+                e.getDate(),
+                formattedStart,
+                formattedEnd,
+                eventDAOImpl.determineStatus(e.getDate(), e.getEndTime())
+            };
+            model.addRow(rowData);
+        }
+    }
+
+    public void refreshClassTBL() {
+        DefaultTableModel model = (DefaultTableModel) classTBL.getModel();
+        model.setRowCount(0); // Clear existing rows
+
+        Teacher teacher = teacherDAOImpl.getTeacherByUserId(user.getUserId());
+
+        this.classList = classesDAOImpl.readAllByAdviserId(teacher.getTeacherId()); // Usually one class
+
+        if (classList == null || classList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No class assigned to this teacher.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        StudentDAOImpl studentDAO = new StudentDAOImpl();
+
+        for (Classes cls : classList) {
+            int studentCount = 0;
+            List<Student> students = studentDAO.read_all_by_class_id(cls.getClass_id());
+            if (students != null) {
+                studentCount = students.size();
+            }
+
+            Object[] row = {
+                cls.getClass_id(),
+                cls.getGrade(),
+                cls.getSection(),
+                studentCount
+            };
+            model.addRow(row);
+        }
+    }
+
+    public void refreshAttendanceTBL() {
+        attendanceDAOImpl.refreshAttendanceTBL(attendanceTBL);
+    }
+
+    public void refreshTables() {
+        refreshEventsTBL();
+        refreshClassTBL();
+        refreshAttendanceTBL();
     }
 
     /**
@@ -26,61 +137,97 @@ public class TeacherGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        eventsPUM = new javax.swing.JPopupMenu();
+        markAttendanceMI = new javax.swing.JMenuItem();
+        classPUM = new javax.swing.JPopupMenu();
+        viewClassMI = new javax.swing.JMenuItem();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
+        greetLBL = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        classTBL = new javax.swing.JTable();
         classSearchTF = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        eventsTBL = new javax.swing.JTable();
         eventsSearchTF = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        attendanceTBL = new javax.swing.JTable();
         attendanceSearchTF = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        logOutMI = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+
+        markAttendanceMI.setText("Update Attendance");
+        markAttendanceMI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                markAttendanceMIActionPerformed(evt);
+            }
+        });
+        eventsPUM.add(markAttendanceMI);
+
+        viewClassMI.setText("View Students");
+        viewClassMI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewClassMIActionPerformed(evt);
+            }
+        });
+        classPUM.add(viewClassMI);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.LEFT);
 
+        greetLBL.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        greetLBL.setText("Welcome to EAM-System Teacher user");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 872, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(229, Short.MAX_VALUE)
+                .addComponent(greetLBL)
+                .addGap(200, 200, 200))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 621, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(209, 209, 209)
+                .addComponent(greetLBL, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(299, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Dashboard", jPanel1);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        classTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
-                "Grade", "Section", "No.Student"
+                "Class ID", "Grade", "Section", "No. of Students"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                true, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        classTBL.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                classTBLMouseReleased(evt);
+            }
+        });
+        jScrollPane1.setViewportView(classTBL);
 
         classSearchTF.setText("Search:");
 
@@ -92,7 +239,8 @@ public class TeacherGUI extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 872, Short.MAX_VALUE)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(classSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(classSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton3)
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -105,31 +253,33 @@ public class TeacherGUI extends javax.swing.JFrame {
                     .addComponent(classSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 563, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jTabbedPane1.addTab("Class", jPanel2);
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        eventsTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Event", "Date", "Time", "Status"
+                "Event ID", "Event", "Description", "Location", "Date", "Start Time", "End Time", "Status"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                true, false, true, true, false, false, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(jTable2);
+        eventsTBL.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                eventsTBLMouseReleased(evt);
+            }
+        });
+        jScrollPane2.setViewportView(eventsTBL);
 
         eventsSearchTF.setText("Search:");
         eventsSearchTF.addActionListener(new java.awt.event.ActionListener() {
@@ -145,7 +295,8 @@ public class TeacherGUI extends javax.swing.JFrame {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(eventsSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(eventsSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2)
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -159,20 +310,17 @@ public class TeacherGUI extends javax.swing.JFrame {
                     .addComponent(eventsSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 563, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Events", jPanel3);
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        attendanceTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
-                "Student", "Event", "Date", "Check In", "Check Out", "Summary"
+                "Student", "Event", "Date", "Check In", "Check Out", "Remark"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -183,7 +331,7 @@ public class TeacherGUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane3.setViewportView(jTable3);
+        jScrollPane3.setViewportView(attendanceTBL);
 
         attendanceSearchTF.setText("Search:");
 
@@ -197,7 +345,8 @@ public class TeacherGUI extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(attendanceSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()
+                        .addComponent(attendanceSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -210,23 +359,40 @@ public class TeacherGUI extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(attendanceSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 557, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 563, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Attendance", jPanel4);
+
+        jMenu1.setText("Settings");
+
+        logOutMI.setText("Log out");
+        logOutMI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logOutMIActionPerformed(evt);
+            }
+        });
+        jMenu1.add(logOutMI);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Other");
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 962, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 962, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 621, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         pack();
@@ -236,6 +402,89 @@ public class TeacherGUI extends javax.swing.JFrame {
     private void eventsSearchTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eventsSearchTFActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_eventsSearchTFActionPerformed
+
+    private void logOutMIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logOutMIActionPerformed
+        // TODO add your handling code here:
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure to log out from EAM System?",
+                "Confirmation",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (option == JOptionPane.YES_OPTION) {
+            LoginGUI loginGUI = new LoginGUI();
+            loginGUI.setVisible(true);
+            this.dispose();
+        } else {
+            // User clicked "No" — do nothing
+        }
+
+    }//GEN-LAST:event_logOutMIActionPerformed
+
+    private void classTBLMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_classTBLMouseReleased
+        // TODO add your handling code here:
+        if (evt.isPopupTrigger()) {
+            int row = classTBL.rowAtPoint(evt.getPoint());
+
+            if (row >= 0) {
+                classTBL.setRowSelectionInterval(row, row);
+            }
+
+            classPUM.show(classTBL, evt.getX(), evt.getY());
+        } else {
+            System.out.println("Nothing happened!");
+        }
+    }//GEN-LAST:event_classTBLMouseReleased
+
+    private void eventsTBLMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_eventsTBLMouseReleased
+        // TODO add your handling code here:
+        if (evt.isPopupTrigger()) {
+            int row = eventsTBL.rowAtPoint(evt.getPoint());
+
+            if (row >= 0) {
+                eventsTBL.setRowSelectionInterval(row, row);
+            }
+
+            eventsPUM.show(eventsTBL, evt.getX(), evt.getY());
+        } else {
+            System.out.println("Nothing happened!");
+        }
+    }//GEN-LAST:event_eventsTBLMouseReleased
+
+    private void viewClassMIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewClassMIActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) classTBL.getModel();
+        int class_id = Integer.parseInt(model.getValueAt(classTBL.getSelectedRow(), 0).toString());
+
+        Classes_Dialog classes = new Classes_Dialog(this, true, class_id);
+        classes.setVisible(true);
+    }//GEN-LAST:event_viewClassMIActionPerformed
+
+    private void markAttendanceMIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_markAttendanceMIActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel model = (DefaultTableModel) eventsTBL.getModel();
+        int event_id = Integer.parseInt(model.getValueAt(eventsTBL.getSelectedRow(), 0).toString());
+        String status = (String) model.getValueAt(eventsTBL.getSelectedRow(), 7);
+
+        if ("Finished".equalsIgnoreCase(status)) {
+            JOptionPane.showConfirmDialog(
+                    this,
+                    "This event is already finished.",
+                    "Error",
+                    JOptionPane.OK_OPTION
+            );
+        } else {
+            Event event = eventDAOImpl.read_oneEvent(event_id);
+            Teacher teacher = teacherDAOImpl.getTeacherByUserId(user.getUserId());
+            Classes classes = classesDAOImpl.readOneByAdviserId(teacher.getTeacherId());
+
+            Mark_Attendance markAttendance = new Mark_Attendance(this, true, event, classes);
+            markAttendance.setVisible(true);
+        }
+        
+        refreshAttendanceTBL();
+    }//GEN-LAST:event_markAttendanceMIActionPerformed
 
     /**
      * @param args the command line arguments
@@ -267,18 +516,27 @@ public class TeacherGUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new TeacherGUI().setVisible(true);
+
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField attendanceSearchTF;
+    private javax.swing.JTable attendanceTBL;
+    private javax.swing.JPopupMenu classPUM;
     private javax.swing.JTextField classSearchTF;
+    private javax.swing.JTable classTBL;
+    private javax.swing.JPopupMenu eventsPUM;
     private javax.swing.JTextField eventsSearchTF;
+    private javax.swing.JTable eventsTBL;
+    private javax.swing.JLabel greetLBL;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -287,8 +545,8 @@ public class TeacherGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JTable jTable3;
+    private javax.swing.JMenuItem logOutMI;
+    private javax.swing.JMenuItem markAttendanceMI;
+    private javax.swing.JMenuItem viewClassMI;
     // End of variables declaration//GEN-END:variables
 }
