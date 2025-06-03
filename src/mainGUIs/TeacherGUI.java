@@ -4,7 +4,6 @@
  */
 package mainGUIs;
 
-import database.DBConnection;
 import implementations.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,7 +11,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import models.*;
-import java.sql.*;
+import javax.swing.Timer;
 
 /**
  *
@@ -25,6 +24,7 @@ public class TeacherGUI extends javax.swing.JFrame {
     EventDAOImpl eventDAOImpl = new EventDAOImpl();
     private final User user;
     List<Classes> classList;
+    private Timer refreshTimer;
 
     /**
      * Creates new form TeacherGUI
@@ -33,9 +33,27 @@ public class TeacherGUI extends javax.swing.JFrame {
         this.user = user;
         initComponents();
         greetUser();
-        refreshTables();
+        startAutoRefresh();
+    }
+    
+    public void startAutoRefresh() {
+        int delay = 5000; // 5 seconds
+        if (refreshTimer != null && refreshTimer.isRunning()) {
+            refreshTimer.stop();
+        }
+        refreshTimer = new Timer(delay, e -> refreshTables());
+        refreshTimer.setRepeats(true);
+        refreshTimer.start();
+        refreshTables();  // Immediate refresh
     }
 
+    public void stopAutoRefresh() {
+        if (refreshTimer != null && refreshTimer.isRunning()) {
+            refreshTimer.stop();
+        }
+    }
+
+    
     public void greetUser() {
         greetLBL.setText("Welcome to EAM-System Teacher " + this.user.getFirstname());
     }

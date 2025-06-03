@@ -20,9 +20,10 @@ public class Event {
     private String description;
     private String created_at;
     private String updated_at;
+    private String status;
 
     //Constructor
-    public Event(int eventId, String eventName, String date, String startTime, String endTime, String venue, String description, String created_at, String updated_at) {
+    public Event(int eventId, String eventName, String date, String startTime, String endTime, String venue, String description, String created_at, String updated_at, String status) {
         this.eventId = eventId;
         this.eventName = eventName;
         this.date = date;
@@ -32,9 +33,19 @@ public class Event {
         this.description = description;
         this.created_at = created_at;
         this.updated_at = updated_at;
+        this.status = status;
     }
 
     //Created At and Updated At
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
     public void setCreated_at(String created_at) {
         this.created_at = created_at;
     }

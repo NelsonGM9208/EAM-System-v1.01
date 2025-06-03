@@ -4,25 +4,16 @@
  */
 package mainGUIs;
 
-import implementations.AttendanceDAOImpl;
-import implementations.ClassesDAOImpl;
-import implementations.EventDAOImpl;
-import implementations.StudentDAOImpl;
-import implementations.TeacherDAOImpl;
-import implementations.UserDAOImpl;
+import implementations.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
-import models.Attendance;
-import models.Classes;
-import models.Event;
-import models.Student;
-import models.Teacher;
-import models.User;
+import models.*;
 
 /**
  *
@@ -36,6 +27,7 @@ public class StudentGUI extends javax.swing.JFrame {
     ClassesDAOImpl classDAOImpl = new ClassesDAOImpl();
     EventDAOImpl eventDAOImpl = new EventDAOImpl();
     private final User user;
+    private Timer refreshTimer;
 
     /**
      * Creates new form StudentGUI
@@ -44,9 +36,26 @@ public class StudentGUI extends javax.swing.JFrame {
         this.user = user;
         initComponents();
         greetUser();
-        refreshTables();
+        startAutoRefresh();
+    }
+    
+    public void startAutoRefresh() {
+        int delay = 5000; // 5 seconds
+        if (refreshTimer != null && refreshTimer.isRunning()) {
+            refreshTimer.stop();
+        }
+        refreshTimer = new Timer(delay, e -> refreshTables());
+        refreshTimer.setRepeats(true);
+        refreshTimer.start();
+        refreshTables();  // Immediate refresh
     }
 
+    public void stopAutoRefresh() {
+        if (refreshTimer != null && refreshTimer.isRunning()) {
+            refreshTimer.stop();
+        }
+    }
+    
     public void greetUser() {
         greetLBL.setText("Welcome to EAM-System " + this.user.getFirstname() + " " + this.user.getLastname());
     }
@@ -90,7 +99,7 @@ public class StudentGUI extends javax.swing.JFrame {
                 e.getDate(),
                 formattedStart,
                 formattedEnd,
-                eventDAOImpl.determineStatus(e.getDate(), e.getEndTime())
+                e.getStatus()
             };
             model.addRow(rowData);
         }
@@ -232,14 +241,14 @@ public class StudentGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        Dashboard.setBackground(new java.awt.Color(204, 204, 204));
+        Dashboard.setBackground(new java.awt.Color(153, 255, 153));
         Dashboard.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         Dashboard.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
         Dashboard.setTabPlacement(javax.swing.JTabbedPane.LEFT);
 
-        jDesktopPane3.setBackground(new java.awt.Color(144, 198, 124));
+        jDesktopPane3.setBackground(new java.awt.Color(31, 125, 83));
 
-        attendanceTBL.setBackground(new java.awt.Color(31, 125, 83));
+        attendanceTBL.setBackground(new java.awt.Color(204, 255, 204));
         attendanceTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -258,7 +267,7 @@ public class StudentGUI extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(attendanceTBL);
 
-        eventsSearchTF.setBackground(new java.awt.Color(225, 238, 188));
+        eventsSearchTF.setBackground(new java.awt.Color(204, 255, 204));
         eventsSearchTF.setText("Search:");
         eventsSearchTF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -266,7 +275,7 @@ public class StudentGUI extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setBackground(new java.awt.Color(225, 238, 188));
+        jButton1.setBackground(new java.awt.Color(153, 255, 153));
         jButton1.setText("Search");
 
         jDesktopPane3.setLayer(jScrollPane2, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -295,14 +304,15 @@ public class StudentGUI extends javax.swing.JFrame {
                     .addComponent(eventsSearchTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1110, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1104, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         Dashboard.addTab("Attendance", jDesktopPane3);
 
-        jDesktopPane4.setBackground(new java.awt.Color(144, 198, 124));
+        jDesktopPane4.setBackground(new java.awt.Color(31, 125, 83));
 
-        adviserTBL.setBackground(new java.awt.Color(31, 125, 83));
+        adviserTBL.setBackground(new java.awt.Color(204, 255, 204));
         adviserTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -321,7 +331,7 @@ public class StudentGUI extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(adviserTBL);
 
-        eventsSearchTF1.setBackground(new java.awt.Color(225, 238, 188));
+        eventsSearchTF1.setBackground(new java.awt.Color(204, 255, 204));
         eventsSearchTF1.setText("Search:");
         eventsSearchTF1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -329,7 +339,7 @@ public class StudentGUI extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setBackground(new java.awt.Color(225, 238, 188));
+        jButton2.setBackground(new java.awt.Color(153, 255, 153));
         jButton2.setText("Search");
 
         jDesktopPane4.setLayer(jScrollPane3, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -364,10 +374,11 @@ public class StudentGUI extends javax.swing.JFrame {
 
         Dashboard.addTab("Adviser", jDesktopPane4);
 
-        jDesktopPane2.setBackground(new java.awt.Color(144, 198, 124));
+        jDesktopPane2.setBackground(new java.awt.Color(31, 125, 83));
 
-        eventsTBL.setBackground(new java.awt.Color(31, 125, 83));
+        eventsTBL.setBackground(new java.awt.Color(204, 255, 204));
         eventsTBL.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        eventsTBL.setForeground(new java.awt.Color(255, 255, 255));
         eventsTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -386,7 +397,7 @@ public class StudentGUI extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(eventsTBL);
 
-        eventsSearchTF2.setBackground(new java.awt.Color(225, 238, 188));
+        eventsSearchTF2.setBackground(new java.awt.Color(204, 255, 204));
         eventsSearchTF2.setText("Search:");
         eventsSearchTF2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -394,7 +405,7 @@ public class StudentGUI extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setBackground(new java.awt.Color(225, 238, 188));
+        jButton3.setBackground(new java.awt.Color(153, 255, 153));
         jButton3.setText("Search");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -402,7 +413,7 @@ public class StudentGUI extends javax.swing.JFrame {
             }
         });
 
-        jComboBox1.setBackground(new java.awt.Color(225, 238, 188));
+        jComboBox1.setBackground(new java.awt.Color(153, 255, 153));
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jDesktopPane2.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -441,8 +452,8 @@ public class StudentGUI extends javax.swing.JFrame {
 
         Dashboard.addTab("Events", jDesktopPane2);
 
-        greetLBL.setBackground(new java.awt.Color(144, 198, 124));
-        greetLBL.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        greetLBL.setBackground(new java.awt.Color(31, 125, 83));
+        greetLBL.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         greetLBL.setText("jLabel1");
 
         jMenuBar1.setBackground(new java.awt.Color(144, 198, 124));
@@ -476,7 +487,7 @@ public class StudentGUI extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(greetLBL, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(greetLBL, javax.swing.GroupLayout.PREFERRED_SIZE, 637, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(

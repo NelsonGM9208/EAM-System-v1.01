@@ -6,6 +6,7 @@ package interfaces;
 
 import java.util.List;
 import models.Teacher;
+import models.TeacherDetail;
 
 /**
  *
@@ -19,7 +20,7 @@ public interface TeacherDAO {
 
     public Teacher getTeacherById(int teacherId);
 
-    public List<Teacher> searchTeachers(String keyword);
+    public List<TeacherDetail> searchTeachers(String keyword);
 
     public boolean updateTeacher(Teacher teacher);
 

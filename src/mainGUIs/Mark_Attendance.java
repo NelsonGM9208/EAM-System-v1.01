@@ -143,8 +143,10 @@ public class Mark_Attendance extends java.awt.Dialog {
         });
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jPanel1.setBackground(new java.awt.Color(31, 125, 83));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jTextField2.setBackground(new java.awt.Color(204, 255, 204));
         jTextField2.setForeground(new java.awt.Color(102, 102, 102));
         jTextField2.setText("Search a student...");
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
@@ -152,19 +154,24 @@ public class Mark_Attendance extends java.awt.Dialog {
                 jTextField2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 320, -1));
+        jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 320, -1));
 
+        jButton1.setBackground(new java.awt.Color(153, 255, 153));
+        jButton1.setFont(new java.awt.Font("Serif", 1, 12)); // NOI18N
         jButton1.setText("Search");
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 40, -1, -1));
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 30, 90, -1));
 
+        jButton3.setBackground(new java.awt.Color(153, 255, 153));
         jButton3.setText("Back");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 410, -1, -1));
+        jPanel1.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1022, 520, 120, -1));
 
+        studentsTBL.setBackground(new java.awt.Color(204, 255, 204));
+        studentsTBL.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
         studentsTBL.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -188,14 +195,15 @@ public class Mark_Attendance extends java.awt.Dialog {
         });
         jScrollPane1.setViewportView(studentsTBL);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(22, 67, 890, 330));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 1120, 450));
 
-        attendanceLBL.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        attendanceLBL.setFont(new java.awt.Font("Sitka Banner", 1, 24)); // NOI18N
+        attendanceLBL.setForeground(new java.awt.Color(255, 255, 255));
         attendanceLBL.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         attendanceLBL.setText("Grade & Section Attendance for Event Name");
-        jPanel1.add(attendanceLBL, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 30, 420, 30));
+        jPanel1.add(attendanceLBL, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 20, 590, 40));
 
-        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 930, 470));
+        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 1170, 560));
 
         pack();
         setLocationRelativeTo(null);

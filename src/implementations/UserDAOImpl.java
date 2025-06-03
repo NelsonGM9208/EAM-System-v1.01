@@ -90,26 +90,29 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public List<User> searchUser(String str) {
-        String sql = "SELECT * FROM users WHERE username LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR email LIKE ?";
+        String sql = "SELECT * FROM users WHERE username LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR email LIKE ? OR gender LIKE ? OR role LIKE ? OR is_active LIKE ?";
         List<User> users = new ArrayList<>();
         User user;
 
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            String pattern = "%" + str + "%";
-            stmt.setString(1, pattern);
-            stmt.setString(2, pattern);
-            stmt.setString(3, pattern);
-            stmt.setString(4, pattern);
+            stmt.setString(1, "%" + str + "%");
+            stmt.setString(2, "%" + str + "%");
+            stmt.setString(3, "%" + str + "%");
+            stmt.setString(4, "%" + str + "%");
+            stmt.setString(5, "%" + str + "%");
+            stmt.setString(6, "%" + str + "%");
+            stmt.setString(7,"%" + str + "%");
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
-                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"), rs.getString("email"),
-                        rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"),
+                        rs.getString("email"), rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
                 users.add(user);
             }
             return users;
         } catch (SQLException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -135,7 +138,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public boolean updateUser(User user) {
-        String sql = "UPDATE users SET username = ?, password = ?, role = ?, first_name = ?, last_name = ?, email = ?, is_active = ? WHERE id = ?";
+        String sql = "UPDATE users SET username = ?, password = ?, role = ?, first_name = ?, last_name = ?, email = ?, is_active = ? WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword());
@@ -164,6 +167,50 @@ public class UserDAOImpl implements UserDAO {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+    
+    public List<User> sortUsers(String str) {
+        String sql = "SELECT * FROM users WHERE role = ?";
+        List<User> users = new ArrayList<>();
+        User user;
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, str);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"),
+                        rs.getString("email"), rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public List<User> sortUsersByStatus(String str) {
+        String sql = "SELECT * FROM users WHERE is_active = ?";
+        List<User> users = new ArrayList<>();
+        User user;
+
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, str);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                user = new User(rs.getInt("user_id"), rs.getString("username"), rs.getString("password"),
+                        rs.getString("role"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("gender"),
+                        rs.getString("email"), rs.getString("is_active"), rs.getString("created_at"), rs.getString("updated_at"));
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
     /*

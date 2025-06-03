@@ -10,6 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import models.Teacher;
+import models.TeacherDetail;
 
 /**
  *
@@ -90,29 +91,51 @@ public class TeacherDAOImpl implements TeacherDAO {
     }
 
     @Override
-    public List<Teacher> searchTeachers(String str) {
-        String sql = "SELECT * FROM teachers WHERE specialization LIKE ? OR advisory_class LIKE ?";
-        List<Teacher> teachers = new ArrayList<>();
-        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            String search = "%" + str + "%";
-            stmt.setString(1, search);
-            stmt.setString(2, search);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Teacher teacher = new Teacher(
-                        rs.getInt("teacher_id"),
-                        rs.getInt("user_id"),
-                        rs.getString("advisory_class"),
-                        rs.getString("created_at"),
-                        rs.getString("updated_at")
-                );
-                teachers.add(teacher);
-            }
-            return teachers;
-        } catch (SQLException e) {
-            return null;
+    public List<TeacherDetail> searchTeachers(String query) {
+    String sql = """
+        SELECT u.user_id, u.username, u.first_name, u.last_name, u.gender,
+               c.grade, c.section, u.role, u.email, u.is_active
+        FROM teachers t
+        JOIN users u ON t.user_id = u.user_id
+        LEFT JOIN classes c ON t.teacher_id = c.adviser_id
+        WHERE u.username LIKE ? 
+           OR u.first_name LIKE ? 
+           OR u.last_name LIKE ?
+           OR CONCAT(c.grade, '-', c.section) LIKE ?
+        ORDER BY u.last_name ASC, u.first_name ASC
+    """;
+
+    List<TeacherDetail> teachers = new ArrayList<>();
+
+    try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+        String searchTerm = "%" + query + "%";
+        for (int i = 1; i <= 4; i++) {
+            stmt.setString(i, searchTerm);
         }
+
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            int userId = rs.getInt("user_id");
+            String username = rs.getString("username");
+            String fullName = rs.getString("last_name") + ", " + rs.getString("first_name");
+            String gender = rs.getString("gender");
+            String advisory = rs.getString("grade") != null && rs.getString("section") != null
+                    ? rs.getInt("grade") + "-" + rs.getString("section")
+                    : "None";
+            String role = rs.getString("role");
+            String email = rs.getString("email");
+            String status = rs.getString("is_active");
+
+            teachers.add(new TeacherDetail(userId, username, fullName, gender, advisory, role, email, status));
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+
+    return teachers;
+}
+
 
     @Override
     public boolean updateTeacher(Teacher teacher) {
@@ -162,4 +185,44 @@ public class TeacherDAOImpl implements TeacherDAO {
             return null;
         }
     }
+    
+    public List<TeacherDetail> sortTeachersByAdvisory(String advisory) {
+    String sql = """
+        SELECT u.user_id, u.username, u.first_name, u.last_name, u.gender,
+               c.grade, c.section, u.role, u.email, u.is_active
+        FROM teachers t
+        JOIN users u ON t.user_id = u.user_id
+        JOIN classes c ON t.teacher_id = c.adviser_id
+        WHERE CONCAT(c.grade, '-', c.section) = ?
+        ORDER BY u.last_name ASC, u.first_name ASC
+    """;
+
+    List<TeacherDetail> teachers = new ArrayList<>();
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setString(1, advisory);
+
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            int userId = rs.getInt("user_id");
+            String username = rs.getString("username");
+            String fullName = rs.getString("last_name") + ", " + rs.getString("first_name");
+            String gender = rs.getString("gender");
+            String advisoryClass = rs.getInt("grade") + "-" + rs.getString("section");
+            String role = rs.getString("role");
+            String email = rs.getString("email");
+            String status = rs.getString("is_active");
+
+            teachers.add(new TeacherDetail(userId, username, fullName, gender, advisoryClass, role, email, status));
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return teachers;
+}
+
 }

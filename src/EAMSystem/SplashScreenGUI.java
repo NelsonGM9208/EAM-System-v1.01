@@ -5,7 +5,8 @@
 package EAMSystem;
 
 import mainGUIs.LoginGUI;
-
+//app password
+//ptck wkcu aoip irdb
 /**
  *
  * @author HansBVitorillo
@@ -156,7 +157,7 @@ public class SplashScreenGUI extends javax.swing.JFrame {
     
      LoginGUI loginGUI = new LoginGUI();
     try{
-        for(int i =0; i<=100; i+=2){
+        for(int i =0; i<=100; i+=12){
         
         Thread.sleep(40);
         sc.bar.setValue(i);

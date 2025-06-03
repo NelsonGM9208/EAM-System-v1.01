@@ -10,6 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import models.Student;
+import models.StudentDetail;
 
 /**
  *
@@ -198,4 +199,97 @@ public class StudentDAOImpl implements StudentDAO {
     return null;
 }
     
+    public List<StudentDetail> searchStudents(String keyword) {
+    String sql = """
+        SELECT s.user_id, s.lrn, u.first_name, u.last_name, u.gender, c.grade, c.section, u.role, u.email, u.is_active
+        FROM students s
+        JOIN users u ON s.user_id = u.user_id
+        JOIN classes c ON s.class_id = c.class_id
+        WHERE 
+            CAST(s.user_id AS CHAR) LIKE ? OR
+            CAST(s.lrn AS CHAR) LIKE ? OR
+            CONCAT(u.first_name, ' ', u.last_name) LIKE ? OR
+            u.gender LIKE ? OR
+            CAST(c.grade AS CHAR) LIKE ? OR
+            c.section LIKE ? OR
+            u.role LIKE ? OR
+            u.email LIKE ? OR
+            u.is_active LIKE ?
+    """;
+
+    List<StudentDetail> results = new ArrayList<>();
+    String pattern = "%" + keyword + "%";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        for (int i = 1; i <= 9; i++) {
+            stmt.setString(i, pattern);
+        }
+
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            int userId = rs.getInt("user_id");
+            long lrn = rs.getLong("lrn");
+            String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
+            String gender = rs.getString("gender");
+            int grade = rs.getInt("grade"); // assuming grade is integer in DB
+            String section = rs.getString("section");
+            String role = rs.getString("role");
+            String email = rs.getString("email");
+            String is_active = rs.getString("is_active");
+
+            StudentDetail detail = new StudentDetail(userId, lrn, fullName, gender, grade, section, role, email, is_active);
+            results.add(detail);
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return results;
+}
+    
+    public List<StudentDetail> sortStudentsByGradeAndSection(int grade, String section) {
+    String sql = """
+        SELECT s.user_id, s.lrn, u.first_name, u.last_name, u.gender,
+               c.grade, c.section, u.role, u.email, u.is_active
+        FROM students s
+        JOIN users u ON s.user_id = u.user_id
+        JOIN classes c ON s.class_id = c.class_id
+        WHERE c.grade = ? AND c.section = ?
+        ORDER BY u.last_name ASC, u.first_name ASC
+    """;
+
+    List<StudentDetail> students = new ArrayList<>();
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, grade);
+        stmt.setString(2, section);
+
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            int userId = rs.getInt("user_id");
+            long lrn = rs.getLong("lrn");
+            String fullName = rs.getString("first_name") + " " + rs.getString("last_name");
+            String gender = rs.getString("gender");
+            int gradeLevel = rs.getInt("grade");
+            String sec = rs.getString("section");
+            String role = rs.getString("role");
+            String email = rs.getString("email");
+            String is_active = rs.getString("is_active");
+
+            StudentDetail student = new StudentDetail(userId, lrn, fullName, gender, gradeLevel, sec, role, email, is_active);
+            students.add(student);
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return students;
+}
 }

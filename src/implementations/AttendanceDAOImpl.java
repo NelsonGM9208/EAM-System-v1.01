@@ -15,6 +15,7 @@ import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import models.AttendanceDetail;
 
 /**
  *
@@ -247,5 +248,74 @@ public class AttendanceDAOImpl implements AttendanceDAO {
             return null;
         }
     }
+
+    public List<AttendanceDetail> filterAttendance(String eventFilter, String gradeSectionFilter, String remarkFilter) {
+    List<AttendanceDetail> results = new ArrayList<>();
+
+    String sql = """
+        SELECT
+            a.record_id,
+            a.event_id,
+            e.event_name,
+            a.student_id,
+            CONCAT(us.first_name, ' ', us.last_name) AS student_name,
+            CONCAT(s.grade_level, '-', s.section) AS grade_section,
+            CONCAT(ut.first_name, ' ', ut.last_name) AS adviser_name,
+            e.date,
+            a.check_in_time,
+            a.check_out_time,
+            a.remark
+        FROM attendances a
+        JOIN events e ON a.event_id = e.event_id
+        JOIN students s ON a.student_id = s.student_id
+        JOIN users us ON s.user_id = us.user_id
+        JOIN classes c ON s.class_id = c.class_id
+        JOIN teachers t ON c.adviser_id = t.teacher_id
+        JOIN users ut ON t.user_id = ut.user_id
+        WHERE
+            (? = 'All' OR e.event_name = ?)
+            AND (? = 'All' OR CONCAT(s.grade_level, '-', s.section) = ?)
+            AND (? = 'All' OR a.remark = ?)
+        ORDER BY e.date DESC, a.check_in_time ASC
+        """;
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        // Set query parameters for filters (each used twice)
+        ps.setString(1, eventFilter);
+        ps.setString(2, eventFilter);
+        ps.setString(3, gradeSectionFilter);
+        ps.setString(4, gradeSectionFilter);
+        ps.setString(5, remarkFilter);
+        ps.setString(6, remarkFilter);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                AttendanceDetail detail = new AttendanceDetail(
+                    rs.getInt("record_id"),
+                    rs.getInt("event_id"),
+                    rs.getString("event_name"),
+                    rs.getInt("student_id"),
+                    rs.getString("student_name"),
+                    rs.getString("grade_section"),
+                    rs.getString("adviser_name"),
+                    rs.getDate("date"),
+                    rs.getString("check_in_time"),
+                    rs.getString("check_out_time"),
+                    rs.getString("remark")
+                );
+                results.add(detail);
+            }
+        }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Error retrieving attendance data:\n" + e.getMessage(),
+                "Database Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+
+    return results;
+}
 
 }
